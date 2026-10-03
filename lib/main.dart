@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:m_opiekun/app_shell.dart';
+import 'package:m_opiekun/auth/auth_service.dart';
+import 'package:m_opiekun/screens/login_screen.dart';
 import 'package:m_opiekun/theme/app_theme.dart';
 
-const supabaseUrl = 'https://zkrbcxlozggztmvcrid.supabase.co';
-const supabaseAnonKey = 'sb_publishable_GVeGCHqiXndiX3Pq_TC5Lg_Mxz8MVRO';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
-
-  runApp(const OpiekunApp());
+void main() {
+  final auth = AuthService();
+  runApp(OpiekunApp(auth: auth));
 }
 
 class OpiekunApp extends StatelessWidget {
-  const OpiekunApp({super.key});
+  final AuthService auth;
+
+  const OpiekunApp({super.key, required this.auth});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,14 @@ class OpiekunApp extends StatelessWidget {
       title: 'mOpiekun',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const AppShell(),
+      home: AnimatedBuilder(
+        animation: auth,
+        builder: (context, _) {
+          final user = auth.currentUser;
+          if (user == null) return LoginScreen(auth: auth);
+          return AppShell(auth: auth);
+        },
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/screens/appointments_screen.dart';
 import 'package:m_opiekun/screens/health_screen.dart';
 import 'package:m_opiekun/screens/home_screen.dart';
@@ -7,7 +8,9 @@ import 'package:m_opiekun/screens/medications_screen.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  final AuthService auth;
+
+  const AppShell({super.key, required this.auth});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -51,7 +54,15 @@ class _AppShellState extends State<AppShell> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(_tabs[_index].label)),
+      appBar: AppBar(
+        title: Text(_tabs[_index].label),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: widget.auth.logout,
+          ),
+        ],
+      ),
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,

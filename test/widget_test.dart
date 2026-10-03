@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/main.dart';
 
 void main() {
@@ -10,7 +11,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const OpiekunApp());
+    await tester.pumpWidget(OpiekunApp(auth: AuthService()));
+
+    await tester.enterText(find.byType(TextField).first, 'user1');
+    await tester.enterText(find.byType(TextField).last, 'helpMe');
+    await tester.tap(find.text('Zaloguj się'));
+    await tester.pumpAndSettle();
 
     expect(find.widgetWithText(AppBar, 'Dziś'), findsOneWidget);
     expect(find.text('Dzień dobry'), findsOneWidget);
