@@ -1,3 +1,5 @@
+import '../widgets/care_components.dart';
+import '../widgets/scanner_layout.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -132,8 +134,9 @@ class _MedicationScannerScreenState extends State<MedicationScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Skanuj kod leku'),
+      appBar: careAppBar(
+        context,
+        'Skanuj kod leku',
         actions: [
           ValueListenableBuilder<MobileScannerState>(
             valueListenable: _controller,
@@ -153,116 +156,78 @@ class _MedicationScannerScreenState extends State<MedicationScannerScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                MobileScanner(
-                  controller: _controller,
-                  useAppLifecycleState: !_locked,
-                  tapToFocus: true,
-                  onDetect: _onDetect,
-                  errorBuilder: (context, error) => Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.all(24),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.camera_alt_outlined, size: 48),
-                        const SizedBox(height: 16),
-                        Text(
-                          error.errorCode ==
-                                  MobileScannerErrorCode.permissionDenied
-                              ? 'Brak uprawnień do aparatu. Włącz dostęp do aparatu '
-                                    'w ustawieniach aplikacji i spróbuj ponownie.'
-                              : 'Nie udało się uruchomić aparatu.',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton(
-                          onPressed: _retry,
-                          child: const Text('Spróbuj ponownie'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  overlayBuilder: (context, constraints) => IgnorePointer(
-                    child: Center(
-                      child: FractionallySizedBox(
-                        widthFactor: 0.85,
-                        child: AspectRatio(
-                          aspectRatio: 1.6,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 3),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (!_locked)
-                  const Positioned(
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text(
-                          'Skieruj aparat na kod kreskowy lub DataMatrix '
-                          'na opakowaniu leku.',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+      body: ScannerLayout(
+        instruction:
+            'Skieruj aparat na kod kreskowy lub DataMatrix na opakowaniu leku.',
+        preview: MobileScanner(
+          controller: _controller,
+          useAppLifecycleState: !_locked,
+          tapToFocus: true,
+          onDetect: _onDetect,
+          errorBuilder: (context, error) => Container(
+            color: Theme.of(context).colorScheme.surface,
+            padding: const EdgeInsets.all(24),
+            alignment: Alignment.center,
+            child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_loading) ...[
-                    const LinearProgressIndicator(),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Wyszukiwanie leku w rejestrze…',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                  if (_error != null) ...[
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(_error!, textAlign: TextAlign.center),
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: _retry,
-                      child: const Text('Skanuj ponownie'),
-                    ),
-                  ],
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Wróć'),
+                  const Icon(Icons.camera_alt_outlined, size: 48),
+                  const SizedBox(height: 16),
+                  Text(
+                    error.errorCode == MobileScannerErrorCode.permissionDenied
+                        ? 'Brak uprawnień do aparatu. Włącz dostęp do aparatu '
+                              'w ustawieniach aplikacji i spróbuj ponownie.'
+                        : 'Nie udało się uruchomić aparatu.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: _retry,
+                    child: const Text('Spróbuj ponownie'),
                   ),
                 ],
               ),
             ),
+          ),
+          overlayBuilder: (context, constraints) => IgnorePointer(
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.85,
+                child: AspectRatio(
+                  aspectRatio: 1.6,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white, width: 3),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          if (_loading) ...[
+            const LinearProgressIndicator(),
+            const SizedBox(height: 12),
+            Semantics(
+              liveRegion: true,
+              child: Text('Wyszukiwanie leku w rejestrze…'),
+            ),
+          ],
+          if (_error != null) ...[
+            CareNotice(_error!, error: true),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _retry,
+              child: const Text('Skanuj ponownie'),
+            ),
+          ],
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Wróć'),
           ),
         ],
       ),

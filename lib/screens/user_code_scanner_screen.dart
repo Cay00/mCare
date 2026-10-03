@@ -1,3 +1,5 @@
+import '../widgets/care_components.dart';
+import '../widgets/scanner_layout.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -50,8 +52,9 @@ class _UserCodeScannerScreenState extends State<UserCodeScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Skanuj kod chorego'),
+      appBar: careAppBar(
+        context,
+        'Skanuj kod chorego',
         actions: [
           ValueListenableBuilder<MobileScannerState>(
             valueListenable: _controller,
@@ -71,80 +74,50 @@ class _UserCodeScannerScreenState extends State<UserCodeScannerScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                MobileScanner(
-                  controller: _controller,
-                  useAppLifecycleState: !_locked,
-                  tapToFocus: true,
-                  onDetect: _onDetect,
-                  errorBuilder: (context, error) => Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.all(24),
-                    alignment: Alignment.center,
-                    child: Text(
-                      error.errorCode == MobileScannerErrorCode.permissionDenied
-                          ? 'Brak uprawnień do aparatu. Włącz aparat '
-                                'w ustawieniach albo wpisz kod ręcznie.'
-                          : 'Nie udało się uruchomić aparatu. '
-                                'Wpisz kod chorego ręcznie.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                  overlayBuilder: (context, constraints) => const IgnorePointer(
-                    child: Center(
-                      child: SizedBox(
-                        width: 240,
-                        height: 240,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            border: Border.fromBorderSide(
-                              BorderSide(color: Colors.white, width: 3),
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (!_locked)
-                  const Positioned(
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text(
-                          'Skieruj aparat na kod QR z profilu chorego.',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Wpisz kod ręcznie'),
+      body: ScannerLayout(
+        instruction: 'Skieruj aparat na kod QR z profilu chorego.',
+        preview: MobileScanner(
+          controller: _controller,
+          useAppLifecycleState: !_locked,
+          tapToFocus: true,
+          onDetect: _onDetect,
+          errorBuilder: (context, error) => Container(
+            color: Theme.of(context).colorScheme.surface,
+            padding: const EdgeInsets.all(24),
+            alignment: Alignment.center,
+            child: SingleChildScrollView(
+              child: Text(
+                error.errorCode == MobileScannerErrorCode.permissionDenied
+                    ? 'Brak uprawnień do aparatu. Włącz aparat '
+                          'w ustawieniach albo wpisz kod ręcznie.'
+                    : 'Nie udało się uruchomić aparatu. '
+                          'Wpisz kod chorego ręcznie.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
+          ),
+          overlayBuilder: (context, constraints) => const IgnorePointer(
+            child: Center(
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.fromBorderSide(
+                      BorderSide(color: Colors.white, width: 3),
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Wpisz kod ręcznie'),
           ),
         ],
       ),

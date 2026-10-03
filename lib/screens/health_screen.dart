@@ -1,3 +1,4 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/widgets/prototype_page.dart';
@@ -13,14 +14,19 @@ class HealthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PrototypePage(
-      lead:
-          'Karta medyczna, zalecenia lekarza i eksport tych informacji do PDF '
-          'dla wizyty albo opiekuna.',
       children: [
+        const CareHeading(
+          'Karta medyczna',
+          subtitle: 'Najważniejsze informacje na wizytę i dla opiekuna.',
+        ),
+        const CareNotice(
+          'Dane i zalecenia poniżej są przykładowe. Eksport PDF jest w przygotowaniu.',
+        ),
         const SectionCard(
           title: 'Dane medyczne',
           icon: Icons.medical_information_outlined,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _Fact(label: 'Osoba', value: 'Maria Kowalska'),
               _Fact(label: 'Grupa krwi', value: 'A Rh+'),
@@ -39,6 +45,7 @@ class HealthScreen extends StatelessWidget {
           title: 'Zalecenia',
           icon: Icons.favorite_outline,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _Advice(text: 'Mierz ciśnienie każdego ranka, przed lekami.'),
               _Advice(text: 'Metformax bierz w trakcie posiłku.'),
@@ -70,7 +77,7 @@ class _Fact extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

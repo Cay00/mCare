@@ -1,3 +1,5 @@
+import 'package:m_opiekun/widgets/prototype_page.dart';
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
@@ -31,9 +33,8 @@ class SharedPatientScreen extends StatelessWidget {
         final name = patient?.name ?? 'Podopieczny';
 
         return Scaffold(
-          appBar: AppBar(title: Text(name)),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+          appBar: careAppBar(context, name),
+          body: PrototypePage(
             children: [
               if (!granted)
                 Text(
@@ -41,6 +42,9 @@ class SharedPatientScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge,
                 )
               else ...[
+                const CareNotice(
+                  'Podgląd zawiera dane przykładowe w udostępnionym zakresie.',
+                ),
                 Text(
                   'To dane, które $name zgodził się pokazać: '
                   '${scopeSummary(link.scopes)}.',
@@ -48,12 +52,12 @@ class SharedPatientScreen extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 20),
                 if (link.scopes.contains(ShareScope.medications)) ...[
                   const SectionCard(
                     title: 'Leki',
                     icon: Icons.medication_outlined,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _SharedFact(
                           label: '08:00',
@@ -78,6 +82,7 @@ class SharedPatientScreen extends StatelessWidget {
                     title: 'Zdrowie',
                     icon: Icons.medical_information_outlined,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _SharedFact(label: 'Grupa krwi', value: 'A Rh+'),
                         _SharedFact(label: 'Alergie', value: 'Penicylina'),
@@ -100,6 +105,7 @@ class SharedPatientScreen extends StatelessWidget {
                     title: 'Wizyty',
                     icon: Icons.event_outlined,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _SharedFact(
                           label: '4 paź, 10:30',
@@ -120,6 +126,7 @@ class SharedPatientScreen extends StatelessWidget {
                     title: 'Strefa',
                     icon: Icons.location_on_outlined,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _SharedFact(
                           label: 'Status',
@@ -158,7 +165,7 @@ class _SharedFact extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

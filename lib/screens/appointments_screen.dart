@@ -1,4 +1,6 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
+import '../theme/guide_colors.dart';
 
 import 'package:m_opiekun/models/wellness_guide.dart';
 import 'package:m_opiekun/screens/wellness_guide_screen.dart';
@@ -14,18 +16,30 @@ class AppointmentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PrototypePage(
-      lead:
-          'Wybierz poradę i przeczytaj krótkie ćwiczenie. '
-          'Możesz wracać do nich, kiedy potrzebujesz chwili spokoju.',
       children: [
-        Text('Porady', style: Theme.of(context).textTheme.titleLarge),
-        for (var i = 0; i < wellnessGuides.length; i += 2)
-          _GuideRow(
-            left: wellnessGuides[i],
-            right: i + 1 < wellnessGuides.length ? wellnessGuides[i + 1] : null,
+        const CareHeading(
+          'Porady',
+          subtitle:
+              'Wybierz krótkie ćwiczenie. Wróć do niego, kiedy potrzebujesz.',
+        ),
+        for (final guide in wellnessGuides)
+          CareLinkCard(
+            title: guide.title,
+            subtitle: guide.duration,
+            icon: guide.icon,
+            iconForeground: guideColors(guide.icon).foreground,
+            iconBackground: guideColors(guide.icon).background,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => WellnessGuideScreen(guide: guide),
+              ),
+            ),
           ),
         const SizedBox(height: 8),
-        Text('Nadchodzące', style: Theme.of(context).textTheme.titleLarge),
+        const CareHeading(
+          'Nadchodzące',
+          subtitle: 'Przykładowe terminy i przypomnienia.',
+        ),
         const _VisitCard(
           day: '4',
           month: 'paź',
@@ -62,82 +76,6 @@ class AppointmentsScreen extends StatelessWidget {
   }
 }
 
-class _GuideRow extends StatelessWidget {
-  const _GuideRow({required this.left, required this.right});
-
-  final WellnessGuide left;
-  final WellnessGuide? right;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: _GuideTile(guide: left)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: right == null
-                ? const SizedBox.shrink()
-                : _GuideTile(guide: right!),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GuideTile extends StatelessWidget {
-  const _GuideTile({required this.guide});
-
-  final WellnessGuide guide;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => WellnessGuideScreen(guide: guide),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(guide.icon, color: theme.colorScheme.primary),
-              ),
-              const SizedBox(height: 12),
-              Text(guide.title, style: theme.textTheme.titleMedium),
-              const Spacer(),
-              const SizedBox(height: 6),
-              Text(
-                guide.duration,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _VisitCard extends StatelessWidget {
   const _VisitCard({
     required this.day,
@@ -164,49 +102,30 @@ class _VisitCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 56,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: muted
-                    ? theme.colorScheme.surfaceContainerHighest
-                    : theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Text(day, style: theme.textTheme.titleLarge),
-                  Text(month, style: theme.textTheme.bodyMedium),
-                ],
+            Text(
+              '$day $month · $time',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.titleMedium),
-                  Text(details, style: theme.textTheme.bodyLarge),
-                  Text(
-                    time,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    reminder,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: mutedColor,
-                    ),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 16),
+            Text(title, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 6),
+            Text(details, style: theme.textTheme.bodyLarge),
+            const Divider(),
+            Text(
+              reminder,
+              style: theme.textTheme.bodyMedium?.copyWith(color: mutedColor),
             ),
+            if (muted)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Wizyta odbyta'),
+              ),
           ],
         ),
       ),

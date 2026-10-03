@@ -7,6 +7,8 @@ import 'package:m_opiekun/screens/home_screen.dart';
 import 'package:m_opiekun/screens/medications_screen.dart';
 import 'package:m_opiekun/screens/profile_screen.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
+import 'package:m_opiekun/widgets/care_components.dart';
+import 'package:m_opiekun/theme/app_theme.dart';
 
 class AppShell extends StatefulWidget {
   final AuthService auth;
@@ -52,29 +54,95 @@ class _AppShellState extends State<AppShell> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_tabs[_index].label),
+      appBar: careAppBar(
+        context,
+        _tabs[_index].label,
         actions: [
           IconButton(
+            tooltip: 'Wyloguj się',
             icon: const Icon(Icons.logout),
             onPressed: widget.auth.logout,
           ),
         ],
       ),
-      body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        onDestinationSelected: _openTab,
-        destinations: [
-          for (final tab in _tabs)
-            NavigationDestination(
-              icon: Icon(tab.icon),
-              selectedIcon: Icon(tab.selected),
-              label: tab.label,
-            ),
-        ],
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: ClipRect(
+            key: const Key('tabContentViewport'),
+            child: IndexedStack(index: _index, children: pages),
+          ),
+        ),
       ),
+      bottomNavigationBar: MediaQuery.textScalerOf(context).scale(14) > 20
+          ? _largeTextNavigation(context)
+          : NavigationBar(
+              selectedIndex: _index,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              onDestinationSelected: _openTab,
+              destinations: [
+                for (final tab in _tabs)
+                  NavigationDestination(
+                    icon: Icon(tab.icon),
+                    selectedIcon: Icon(tab.selected),
+                    label: tab.label,
+                  ),
+              ],
+            ),
     );
   }
+
+  Widget _largeTextNavigation(BuildContext context) => Material(
+    color: Colors.white,
+    child: SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: LayoutBuilder(
+          builder: (context, constraints) => Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              for (var i = 0; i < _tabs.length; i++)
+                SizedBox(
+                  width: (constraints.maxWidth - 8) / 3,
+                  child: Semantics(
+                    selected: i == _index,
+                    child: TextButton(
+                      key: ValueKey('nav-${_tabs[i].label}'),
+                      onPressed: () => _openTab(i),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 10,
+                        ),
+                        backgroundColor: i == _index
+                            ? CareColors.soft
+                            : Colors.white,
+                        foregroundColor: i == _index
+                            ? CareColors.primary
+                            : CareColors.muted,
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(i == _index ? _tabs[i].selected : _tabs[i].icon),
+                          const SizedBox(height: 4),
+                          Text(
+                            _tabs[i].label,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

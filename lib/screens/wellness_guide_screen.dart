@@ -1,4 +1,7 @@
+import 'package:m_opiekun/widgets/prototype_page.dart';
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
+import '../theme/guide_colors.dart';
 
 import 'package:m_opiekun/models/wellness_guide.dart';
 
@@ -13,9 +16,8 @@ class WellnessGuideScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(guide.title)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      appBar: careAppBar(context, guide.title),
+      body: PrototypePage(
         children: [
           Row(
             children: [
@@ -23,13 +25,13 @@ class WellnessGuideScreen extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
+                  color: guideColors(guide.icon).background,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   guide.icon,
                   size: 30,
-                  color: theme.colorScheme.primary,
+                  color: guideColors(guide.icon).foreground,
                 ),
               ),
               const SizedBox(width: 14),
@@ -43,14 +45,11 @@ class WellnessGuideScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
           Text(guide.intro, style: theme.textTheme.bodyLarge),
-          const SizedBox(height: 20),
           for (var i = 0; i < guide.steps.length; i++) ...[
             _Step(number: i + 1, text: guide.steps[i]),
             if (i < guide.steps.length - 1) const SizedBox(height: 10),
           ],
-          const SizedBox(height: 24),
           Text(
             'To propozycja ćwiczenia, nie porada lekarska. '
             'Przy złym samopoczuciu skontaktuj się z lekarzem albo bliską osobą.',
@@ -78,8 +77,8 @@ class _Step extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 32,
-          height: 32,
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          padding: const EdgeInsets.all(8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer,
