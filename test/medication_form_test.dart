@@ -14,7 +14,7 @@ const product = MedicationProduct(
   gtin: '05909990672516',
 );
 
-Finder field(String label) => find.widgetWithText(TextFormField, label);
+Finder field(String label) => find.byKey(ValueKey('medication-$label'));
 
 void main() {
   testWidgets(
@@ -27,11 +27,13 @@ void main() {
       var scans = 0;
       await tester.pumpWidget(
         MaterialApp(
-          home: MedicationsScreen(
-            scanMedication: (_) async {
-              scans++;
-              return product;
-            },
+          home: Scaffold(
+            body: MedicationsScreen(
+              scanMedication: (_) async {
+                scans++;
+                return product;
+              },
+            ),
           ),
         ),
       );
@@ -77,6 +79,7 @@ void main() {
       await tester.tap(find.text('Zapisz lek'));
       await tester.pumpAndSettle();
       expect(find.byType(MedicationForm), findsNothing);
+      await tester.scrollUntilVisible(find.text('Lek testowy 5 mg'), 400);
       expect(find.text('Lek testowy 5 mg'), findsOneWidget);
       expect(find.text('Zapas: 60,5 tabletki'), findsOneWidget);
       expect(find.text('1/2 tabletki raz dziennie'), findsOneWidget);
@@ -85,7 +88,11 @@ void main() {
 
   testWidgets('cancelled scan does not open or save a form', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(home: MedicationsScreen(scanMedication: (_) async => null)),
+      MaterialApp(
+        home: Scaffold(
+          body: MedicationsScreen(scanMedication: (_) async => null),
+        ),
+      ),
     );
     await tester.scrollUntilVisible(find.text('Dodaj lek'), 300);
     await tester.tap(find.text('Dodaj lek'));

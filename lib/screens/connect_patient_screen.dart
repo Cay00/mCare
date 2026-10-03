@@ -1,3 +1,5 @@
+import 'package:m_opiekun/widgets/prototype_page.dart';
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
@@ -72,9 +74,8 @@ class _ConnectPatientScreenState extends State<ConnectPatientScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Połącz z chorym')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      appBar: careAppBar(context, 'Połącz z chorym'),
+      body: PrototypePage(
         children: [
           Text(
             'Zeskanuj kod QR z profilu chorego albo wpisz jego kod. '
@@ -83,39 +84,29 @@ class _ConnectPatientScreenState extends State<ConnectPatientScreen> {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 20),
-          TextField(
-            key: const Key('patientCodeField'),
-            controller: _code,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Kod chorego',
-              border: OutlineInputBorder(),
+          CareField(
+            label: 'Kod chorego',
+            child: TextField(
+              key: const Key('patientCodeField'),
+              controller: _code,
+              textCapitalization: TextCapitalization.characters,
+              onSubmitted: (_) => _submit(),
             ),
-            onSubmitted: (_) => _submit(),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(
-              _error!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
+            CareNotice(_error!, error: true),
           ],
-          const SizedBox(height: 20),
           FilledButton(
             key: const Key('sendLinkRequest'),
             onPressed: _submit,
             child: const Text('Wyślij prośbę'),
           ),
-          const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _scan,
             icon: const Icon(Icons.qr_code_scanner),
             label: const Text('Skanuj kod QR'),
           ),
-          const SizedBox(height: 20),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),

@@ -6,6 +6,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:m_opiekun/models/medication.dart';
 import 'package:m_opiekun/screens/medication_scanner_screen.dart';
 import 'package:m_opiekun/services/rpl_repository.dart';
+import 'package:m_opiekun/screens/user_code_scanner_screen.dart';
+import 'package:m_opiekun/theme/app_theme.dart';
 
 class _Camera extends MobileScannerPlatform {
   final captures = StreamController<BarcodeCapture?>.broadcast();
@@ -72,6 +74,32 @@ void main() {
   tearDown(() async {
     await camera.captures.close();
     MobileScannerPlatform.instance = original;
+  });
+
+  testWidgets('both scanner layouts support 200% text and camera errors', (tester) async {
+    tester.view.physicalSize = const Size(320, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    for (final denied in [false, true]) {
+      camera.denied = denied;
+      for (final screen in [const MedicationScannerScreen(), const UserCodeScannerScreen()]) {
+        await tester.pumpWidget(MaterialApp(theme: buildAppTheme(),
+          builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2)), child: child!),
+          home: screen,
+        ));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        if (denied) expect(find.textContaining('Brak uprawnień do aparatu.'), findsOneWidget);
+        final back = find.text(screen is MedicationScannerScreen ? 'Wróć' : 'Wpisz kod ręcznie');
+        await tester.ensureVisible(back);
+        await tester.pumpAndSettle();
+        expect(back.hitTestable(), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpAndSettle();
+      }
+    }
   });
 
   testWidgets(
@@ -154,6 +182,7 @@ void main() {
       findsOneWidget,
     );
     expect(camera.stops, greaterThan(0));
+    await tester.ensureVisible(find.text('Skanuj ponownie'));
     await tester.tap(find.text('Skanuj ponownie'));
     await tester.pumpAndSettle();
     expect(

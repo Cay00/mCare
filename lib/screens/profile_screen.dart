@@ -1,3 +1,4 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -28,10 +29,13 @@ class ProfileScreen extends StatelessWidget {
       builder: (context, _) {
         return PrototypePage(
           listKey: const Key('profileScroll'),
-          lead: isPatient
-              ? 'Twoje dane, hasło i osoby, którym możesz pokazać informacje.'
-              : 'Twoje dane i chorzy, którzy zgodzili się pokazać Ci swoje informacje.',
           children: [
+            CareHeading(
+              'Twoje konto',
+              subtitle: isPatient
+                  ? 'Ty wybierasz, komu i jakie dane udostępniasz.'
+                  : 'Twoje dane i podopieczni, którzy udzielili Ci dostępu.',
+            ),
             _AccountCard(user: user),
             if (isPatient) ..._pendingRequests(user),
             if (isPatient) ..._acceptedCaregivers(user),
@@ -184,6 +188,7 @@ class _AccountCard extends StatelessWidget {
       title: 'Dane konta',
       icon: Icons.person_outline,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Fact(label: 'Imię i nazwisko', value: user.name),
           _Fact(label: 'Login', value: user.email),
@@ -221,11 +226,13 @@ class _PatientCodeCard extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: QrImageView(
-                data: user.codePayload,
-                size: 220,
-                backgroundColor: Colors.white,
-                semanticsLabel: 'Kod QR ${user.id}',
+              child: LayoutBuilder(
+                builder: (context, constraints) => QrImageView(
+                  data: user.codePayload,
+                  size: constraints.maxWidth.clamp(0, 220),
+                  backgroundColor: Colors.white,
+                  semanticsLabel: 'Kod QR ${user.id}',
+                ),
               ),
             ),
           ),
@@ -247,43 +254,12 @@ class _ZoneEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        key: const Key('openSafeZone'),
-        onTap: () => openSafeZone(context),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 32,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Bezpieczna strefa',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      'Miejsce, promień i alert dla opiekuna',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right, color: theme.colorScheme.outline),
-            ],
-          ),
-        ),
-      ),
+    return CareLinkCard(
+      key: const Key('openSafeZone'),
+      title: 'Bezpieczna strefa',
+      subtitle: 'Miejsce, promień i alert dla opiekuna',
+      icon: Icons.location_on_outlined,
+      onTap: () => openSafeZone(context),
     );
   }
 }
@@ -550,10 +526,12 @@ class ScopeChecklist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final scope in ShareScope.values)
           CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            controlAffinity: ListTileControlAffinity.leading,
             value: selected.contains(scope),
             title: Text(scope.label),
             subtitle: Text(scope.description),
@@ -576,7 +554,7 @@ class _Fact extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

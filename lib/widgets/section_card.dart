@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'care_components.dart';
 
 class SectionCard extends StatelessWidget {
   const SectionCard({
@@ -18,22 +19,35 @@ class SectionCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, color: theme.colorScheme.primary),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Text(title, style: theme.textTheme.titleMedium),
-                ),
+            if (MediaQuery.textScalerOf(context).scale(20) > 28) ...[
+              if (icon != null) ...[
+                Align(alignment: Alignment.centerLeft, child: CareIcon(icon!)),
+                const SizedBox(height: 16),
               ],
-            ),
-            const SizedBox(height: 12),
+              Semantics(
+                header: true,
+                child: Text(title, style: theme.textTheme.titleMedium),
+              ),
+            ] else
+              Row(
+                children: [
+                  if (icon != null) ...[
+                    CareIcon(icon!),
+                    const SizedBox(width: 14),
+                  ],
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(title, style: theme.textTheme.titleMedium),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 20),
             child,
           ],
         ),

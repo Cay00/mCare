@@ -1,3 +1,4 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/widgets/prototype_page.dart';
@@ -11,7 +12,7 @@ void openSafeZone(BuildContext context) {
   Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (context) => Scaffold(
-        appBar: AppBar(title: const Text('Strefa')),
+        appBar: careAppBar(context, 'Strefa'),
         body: const SafeZoneScreen(),
       ),
     ),
@@ -30,6 +31,10 @@ class SafeZoneScreen extends StatelessWidget {
           'Status pobytu w bezpiecznej strefie i ostrzeżenie dla opiekuna, '
           'gdy osoba ją opuści.',
       children: [
+        const CareHeading('Bezpieczna strefa'),
+        const CareNotice(
+          'Podgląd funkcji. Lokalizacja, mapa i wysyłanie alertów nie są jeszcze podłączone.',
+        ),
         Card(
           color: theme.colorScheme.primaryContainer,
           child: Padding(
@@ -66,7 +71,8 @@ class SafeZoneScreen extends StatelessWidget {
           ),
         ),
         Container(
-          height: 180,
+          constraints: const BoxConstraints(minHeight: 200),
+          padding: const EdgeInsets.all(24),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest,
@@ -82,9 +88,14 @@ class SafeZoneScreen extends StatelessWidget {
                 color: theme.colorScheme.primary,
               ),
               const SizedBox(height: 8),
-              Text('Miejsce na mapę', style: theme.textTheme.titleMedium),
+              Text(
+                'Miejsce na mapę',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium,
+              ),
               Text(
                 'Okrąg strefy wokół domu',
+                textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -96,6 +107,7 @@ class SafeZoneScreen extends StatelessWidget {
           title: 'Ustawienia strefy',
           icon: Icons.home_outlined,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ZoneFact(label: 'Miejsce', value: 'Dom, ul. Lipowa 12'),
               _ZoneFact(label: 'Promień', value: '200 m'),
@@ -175,7 +187,7 @@ class _ZoneFact extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

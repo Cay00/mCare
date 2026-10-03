@@ -24,17 +24,33 @@ class StatusPill extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: foreground,
-          fontSize: 14,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ExcludeSemantics(
+            child: Icon(
+              switch (tone) {
+                StatusTone.done => Icons.check_circle_outline,
+                StatusTone.ready => Icons.schedule,
+                StatusTone.neutral => Icons.info_outline,
+              },
+              size: 20,
+              color: foreground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(color: foreground),
+            ),
+          ),
+        ],
       ),
     );
   }

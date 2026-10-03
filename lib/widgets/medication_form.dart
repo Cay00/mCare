@@ -1,3 +1,4 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import '../models/medication.dart';
@@ -174,6 +175,8 @@ class _MedicationFormState extends State<MedicationForm> {
                   return null;
                 },
               ),
+              const CareHeading('Dawkowanie i zapas'),
+              const SizedBox(height: 20),
               _field(
                 'Dawkowanie według zaleceń lekarza',
                 _instruction,
@@ -217,9 +220,10 @@ class _MedicationFormState extends State<MedicationForm> {
     int maxLines = 1,
     String? hint,
     String? Function(String?)? validator,
-  }) => Padding(
-    padding: const EdgeInsets.only(bottom: 14),
+  }) => CareField(
+    label: label,
     child: TextFormField(
+      key: ValueKey('medication-$label'),
       controller: controller,
       readOnly: readOnly,
       maxLines: maxLines,
@@ -228,11 +232,7 @@ class _MedicationFormState extends State<MedicationForm> {
           : maxLines > 1
           ? TextInputType.multiline
           : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: InputDecoration(hintText: hint, hintMaxLines: 4),
       validator: validator,
     ),
   );

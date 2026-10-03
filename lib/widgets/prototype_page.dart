@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class PrototypePage extends StatelessWidget {
   const PrototypePage({
     super.key,
-    required this.lead,
+    this.lead = '',
     required this.children,
     this.listKey,
   });
@@ -17,26 +17,34 @@ class PrototypePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final items = <Widget>[
-      Text(
-        lead,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
+      if (lead.isNotEmpty)
+        Text(
+          lead,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
-      ),
-      const SizedBox(height: 20),
+      if (lead.isNotEmpty) const SizedBox(height: 24),
     ];
 
     for (var i = 0; i < children.length; i++) {
       if (i > 0) {
-        items.add(const SizedBox(height: 12));
+        items.add(const SizedBox(height: 20));
       }
       items.add(children[i]);
     }
 
-    return ListView(
-      key: listKey,
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
-      children: items,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final inset = constraints.maxWidth > 760
+            ? (constraints.maxWidth - 720) / 2
+            : 20.0;
+        return ListView(
+          key: listKey,
+          padding: EdgeInsets.fromLTRB(inset, 12, inset, 32),
+          children: items,
+        );
+      },
     );
   }
 }

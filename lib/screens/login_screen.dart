@@ -1,3 +1,4 @@
+import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
@@ -37,49 +38,54 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('mOpiekun', style: theme.textTheme.headlineMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Zaloguj się, aby kontynuować',
-                    style: theme.textTheme.bodyMedium,
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: CareIcon(Icons.favorite_outline),
+                  ),
+                  const SizedBox(height: 24),
+                  const CareHeading(
+                    'Dobrze mieć wsparcie',
+                    eyebrow: 'mCare',
+                    subtitle: 'Twoje leki, zdrowie i bliscy w jednym miejscu.',
                   ),
                   const SizedBox(height: 32),
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'E-mail',
-                      border: OutlineInputBorder(),
+                  CareField(
+                    label: 'Login',
+                    child: TextField(
+                      controller: _email,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.username],
+                      textInputAction: TextInputAction.next,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _password,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Hasło',
-                      border: OutlineInputBorder(),
+                  CareField(
+                    label: 'Hasło',
+                    child: TextField(
+                      controller: _password,
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      onSubmitted: (_) => _submit(),
                     ),
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
-                    Text(
-                      _error!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
+                    CareNotice(_error!, error: true),
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _submit,
                     child: const Text('Zaloguj się'),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 28),
+                  const CareHeading(
+                    'Wypróbuj aplikację',
+                    subtitle: 'Wybierz przykładowe konto.',
+                  ),
+                  const SizedBox(height: 16),
                   OutlinedButton(
                     onPressed: () => widget.auth.login('user1', 'helpMe'),
                     child: const Text('Zaloguj jako chory'),

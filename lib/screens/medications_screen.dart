@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../models/medication.dart';
 import '../widgets/medication_form.dart';
 import 'medication_scanner_screen.dart';
+import '../widgets/care_components.dart';
+import '../widgets/prototype_page.dart';
+import '../widgets/section_card.dart';
+import '../widgets/status_pill.dart';
+import '../theme/app_theme.dart';
 
 class MedicationsScreen extends StatefulWidget {
   const MedicationsScreen({super.key, this.scanMedication});
@@ -58,10 +63,12 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     try {
       final scan = await showModalBottomSheet<bool>(
         context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        builder: (ctx) => Padding(
+        builder: (ctx) => SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -73,7 +80,9 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              const Text('Wybierz sposób dodania leku.'),
+              const SizedBox(height: 24),
               FilledButton.tonalIcon(
                 onPressed: () {
                   Navigator.pop(ctx, true);
@@ -117,171 +126,131 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F7F2),
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        children: [
-          Text(
-            'Dawki na dziś i lista leków stałych. Zarządzaj dawkami i zapasami.',
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Dziś',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          ..._dosesToday.map((dose) => _buildDoseCard(dose)),
-          const SizedBox(height: 24),
-          _buildPermanentMedsCard(),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _openAddMedicationModal,
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text(
-              'Dodaj lek',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF005F56),
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-        ],
+  Widget build(BuildContext context) => PrototypePage(
+    children: [
+      const CareHeading(
+        'Twoje leki',
+        subtitle: 'Twój plan przyjmowania leków i stan zapasów.',
       ),
-    );
-  }
+      FilledButton.icon(
+        onPressed: _openAddMedicationModal,
+        icon: const Icon(Icons.add),
+        label: const Text('Dodaj lek'),
+      ),
+      const CareHeading('Dawki na dziś'),
+      ..._dosesToday.map(_buildDoseCard),
+      _buildPermanentMedsCard(),
+    ],
+  );
 
   Widget _buildDoseCard(MedicationDose dose) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            dose.time,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  dose.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+    final theme = Theme.of(context);
+    return Semantics(
+      container: true,
+      child: Card(
+        key: ValueKey('dose-card-${dose.id}'),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(dose.time, style: theme.textTheme.titleLarge),
+                        StatusPill(
+                          label: dose.isTaken ? 'Przyjęty' : 'Do przyjęcia',
+                          tone: dose.isTaken
+                              ? StatusTone.done
+                              : StatusTone.ready,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (dose.isTaken)
+                    IconButton(
+                      key: ValueKey('dose-${dose.id}'),
+                      tooltip:
+                          'Cofnij potwierdzenie: ${dose.name}, ${dose.time}',
+                      onPressed: () => _toggleDose(dose),
+                      style: IconButton.styleFrom(
+                        minimumSize: const Size(48, 48),
+                      ),
+                      icon: const Icon(Icons.undo_rounded, size: 22),
+                    ),
+                ],
+              ),
+              SizedBox(height: dose.isTaken ? 10 : 18),
+              Text(dose.name, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(
+                dose.instruction,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: CareColors.muted,
+                ),
+              ),
+              if (!dose.isTaken) ...[
+                const SizedBox(height: 20),
+                Semantics(
+                  label: '${dose.name}, godzina ${dose.time}',
+                  child: FilledButton.icon(
+                    key: ValueKey('dose-${dose.id}'),
+                    onPressed: () => _toggleDose(dose),
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text('Potwierdź przyjęcie'),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  dose.instruction,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                ),
               ],
-            ),
+            ],
           ),
-          InkWell(
-            onTap: () => _toggleDose(dose),
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: dose.isTaken
-                    ? const Color(0xFF8CE0D8)
-                    : const Color(0xFFFFECE5),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                dose.isTaken ? 'Przyjęty' : 'Do przyjęcia',
-                style: TextStyle(
-                  color: dose.isTaken
-                      ? const Color(0xFF004D40)
-                      : const Color(0xFFBF360C),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildPermanentMedsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: const [
-              Icon(
-                Icons.local_hospital_outlined,
-                color: Color(0xFF005F56),
-                size: 20,
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Leki stałe i stan zapasów',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 24),
+  Widget _buildPermanentMedsCard() => SectionCard(
+    title: 'Leki stałe i stan zapasów',
+    icon: Icons.inventory_2_outlined,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildPermanentMedRow(
+          'Acard 75 mg',
+          'Codziennie rano',
+          'Zapas: 28 dni',
+        ),
+        const Divider(),
+        _buildPermanentMedRow(
+          'Prestarium 5 mg',
+          'Codziennie rano',
+          'Zapas: 14 dni',
+        ),
+        const Divider(),
+        _buildPermanentMedRow(
+          'Metformax 500 mg',
+          'Obiad i kolacja',
+          'Uwaga: Zostało na 3 dni!',
+          isLow: true,
+        ),
+        for (final medication in _medications) ...[
+          const Divider(),
           _buildPermanentMedRow(
-            'Acard 75 mg',
-            'Codziennie rano',
-            'Zapas: 28 dni',
+            medication.product.displayName,
+            medication.instruction.isEmpty
+                ? 'Dawkowanie do uzupełnienia'
+                : medication.instruction,
+            _stockLabel(medication),
           ),
-          const SizedBox(height: 12),
-          _buildPermanentMedRow(
-            'Prestarium 5 mg',
-            'Codziennie rano',
-            'Zapas: 14 dni',
-          ),
-          const SizedBox(height: 12),
-          _buildPermanentMedRow(
-            'Metformax 500 mg',
-            'Obiad i kolacja',
-            'Uwaga: Zostało na 3 dni!',
-            isLow: true,
-          ),
-          for (final medication in _medications) ...[
-            const SizedBox(height: 12),
-            _buildPermanentMedRow(
-              medication.product.displayName,
-              medication.instruction.isEmpty
-                  ? 'Dawkowanie do uzupełnienia'
-                  : medication.instruction,
-              _stockLabel(medication),
-            ),
-          ],
         ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
 
   String _stockLabel(MedicationStock medication) {
     final total = medication.totalUnits;
@@ -299,35 +268,22 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     String dosage,
     String stockInfo, {
     bool isLow = false,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-              Text(
-                dosage,
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Text(
-            stockInfo,
-            textAlign: TextAlign.end,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: isLow ? Colors.orange[800] : Colors.grey[600],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  }) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(name, style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 6),
+      Text(
+        dosage,
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: CareColors.muted),
+      ),
+      const SizedBox(height: 12),
+      StatusPill(
+        label: stockInfo,
+        tone: isLow ? StatusTone.ready : StatusTone.neutral,
+      ),
+    ],
+  );
 }
