@@ -1,19 +1,111 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
 import 'package:m_opiekun/services/health_pdf_export.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
-import 'package:flutter/material.dart';
-
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 
-/// Zdrowie: dane medyczne, zalecenia i eksport PDF.
-///
-/// Do zbudowania: edycja karty, lista zaleceń od lekarza oraz
-/// generowanie jednego PDF z tych informacji. Przycisk nic nie eksportuje.
-class HealthScreen extends StatelessWidget {
+/// Karta medyczna pacjenta i ręcznie wprowadzane pomiary.
+class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
+
+  @override
+  State<HealthScreen> createState() => _HealthScreenState();
+}
+
+class _HealthScreenState extends State<HealthScreen> {
+  String _name = 'Maria Kowalska';
+  String _bloodType = 'A Rh+';
+  String _allergies = 'Penicylina';
+  String _conditions = 'Nadciśnienie, cukrzyca typu 2';
+  String _doctor = 'dr Anna Nowak';
+  String _emergencyContact = 'Jan Kowalski, syn · 500 100 200';
+  final List<_HealthReading> _readings = [];
+
+  Future<void> _editPatientData() async {
+    final data = await showModalBottomSheet<_PatientData>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _PatientDataForm(
+        initial: _PatientData(
+          name: _name,
+          bloodType: _bloodType,
+          allergies: _allergies,
+          conditions: _conditions,
+          doctor: _doctor,
+          emergencyContact: _emergencyContact,
+        ),
+      ),
+    );
+    if (!mounted || data == null) return;
+    setState(() {
+      _name = data.name;
+      _bloodType = data.bloodType;
+      _allergies = data.allergies;
+      _conditions = data.conditions;
+      _doctor = data.doctor;
+      _emergencyContact = data.emergencyContact;
+    });
+  }
+
+  Future<void> _addReading() async {
+    final reading = await showModalBottomSheet<_HealthReading>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const _ReadingForm(),
+    );
+    if (!mounted || reading == null) return;
+    setState(() {
+      if (reading.conditions.isNotEmpty) _conditions = reading.conditions;
+      _readings.insert(0, reading);
+    });
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Zapisano dane zdrowotne.')));
+  }
+
+  Future<void> _exportPdf() async {
+    try {
+      final bytes = await HealthPdfExport.build(
+        name: _name,
+        bloodType: _bloodType,
+        allergies: _allergies,
+        conditions: _conditions,
+        doctor: _doctor,
+        emergencyContact: _emergencyContact,
+        readings: _readings.map(_readingText).toList(),
+      );
+      await Printing.sharePdf(
+        bytes: Uint8List.fromList(bytes),
+        filename: 'karta_medyczna.pdf',
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nie udało się przygotować PDF: $error')),
+      );
+    }
+  }
+
+  String _readingText(_HealthReading reading) {
+    final values = <String>[
+      if (reading.conditions.isNotEmpty) 'Choroba: ${reading.conditions}',
+      if (reading.pulse != null) 'Tętno: ${reading.pulse} uderzeń/min',
+      if (reading.glucose != null) 'Poziom cukru: ${reading.glucose} mg/dl',
+    ];
+    return '${_formatDate(reading.at)} · ${values.join(' · ')}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,27 +115,55 @@ class HealthScreen extends StatelessWidget {
           'Karta medyczna',
           subtitle: 'Najważniejsze informacje na wizytę i dla opiekuna.',
         ),
-        const CareNotice(
-          'Dane i zalecenia poniżej są przykładowe. Eksport PDF jest w przygotowaniu.',
-        ),
-        const SectionCard(
+        SectionCard(
           title: 'Dane medyczne',
           icon: Icons.medical_information_outlined,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Fact(label: 'Osoba', value: 'Maria Kowalska'),
-              _Fact(label: 'Grupa krwi', value: 'A Rh+'),
-              _Fact(label: 'Alergie', value: 'Penicylina'),
-              _Fact(label: 'Choroby', value: 'Nadciśnienie, cukrzyca typu 2'),
-              _Fact(label: 'Lekarz prowadzący', value: 'dr Anna Nowak'),
+              _Fact(label: 'Osoba', value: _name),
+              _Fact(label: 'Grupa krwi', value: _bloodType),
+              _Fact(label: 'Alergie', value: _allergies),
+              _Fact(label: 'Choroby', value: _conditions),
+              _Fact(label: 'Lekarz prowadzący', value: _doctor),
               _Fact(
                 label: 'Kontakt alarmowy',
-                value: 'Jan Kowalski, syn · 500 100 200',
+                value: _emergencyContact,
                 isLast: true,
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: _editPatientData,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edytuj dane pacjenta'),
               ),
             ],
           ),
+        ),
+        FilledButton.icon(
+          onPressed: _addReading,
+          icon: const Icon(Icons.add),
+          label: const Text('Dodaj pomiar'),
+        ),
+        if (_readings.isNotEmpty)
+          SectionCard(
+            title: 'Pomiary i wpisy zdrowotne',
+            icon: Icons.monitor_heart_outlined,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < _readings.length; i++)
+                  _ReadingTile(
+                    reading: _readings[i],
+                    isLast: i == _readings.length - 1,
+                  ),
+              ],
+            ),
+          ),
+        FilledButton.tonalIcon(
+          onPressed: _exportPdf,
+          icon: const Icon(Icons.picture_as_pdf_outlined),
+          label: const Text('Pobierz kartę i pomiary do PDF'),
         ),
         const SectionCard(
           title: 'Zalecenia',
@@ -58,11 +178,6 @@ class HealthScreen extends StatelessWidget {
               _Advice(text: 'Ogranicz sól.', isLast: true),
             ],
           ),
-        ),
-        FilledButton.icon(
-          onPressed: () => showPrototypeHint(context, 'Eksport karty do PDF'),
-          icon: const Icon(Icons.picture_as_pdf_outlined),
-          label: const Text('Eksportuj kartę do PDF'),
         ),
       ],
     );
@@ -330,7 +445,6 @@ Widget _field(TextEditingController controller, String label) => Padding(
 
 class _Fact extends StatelessWidget {
   const _Fact({required this.label, required this.value, this.isLast = false});
-
   final String label;
   final String value;
   final bool isLast;
@@ -338,7 +452,6 @@ class _Fact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
       child: Column(
@@ -364,7 +477,6 @@ class _Fact extends StatelessWidget {
 
 class _Advice extends StatelessWidget {
   const _Advice({required this.text, this.isLast = false});
-
   final String text;
   final bool isLast;
 
