@@ -73,7 +73,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final registered = _registered;
 
     return Scaffold(
@@ -94,19 +93,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           LiquidField(controller: _name, label: 'Imię i nazwisko'),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           LiquidField(
                             controller: _email,
                             label: 'E-mail',
                             keyboardType: TextInputType.emailAddress,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           LiquidField(
                             controller: _password,
                             label: 'Hasło',
                             obscureText: true,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           SegmentedButton<Gender>(
                             segments: const [
                               ButtonSegment(
@@ -122,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onSelectionChanged: (selection) =>
                                 setState(() => _gender = selection.first),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           Row(
                             children: [
                               Expanded(
@@ -142,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           SegmentedButton<UserRole>(
                             segments: const [
                               ButtonSegment(
@@ -162,14 +161,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           if (_error != null) ...[
                             const SizedBox(height: 12),
-                            Text(
-                              _error!,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.error,
-                              ),
-                            ),
+                            LiquidError(message: _error!),
                           ],
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           LiquidButton(
                             label: 'Zarejestruj się',
                             onPressed: _submit,
@@ -214,7 +208,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           LiquidButton(
                             label: 'Zaloguj się automatycznie',
                             onPressed: _loginAutomatically,

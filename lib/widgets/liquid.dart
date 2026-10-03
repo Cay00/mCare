@@ -60,40 +60,80 @@ class _LiquidFieldState extends State<LiquidField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: widget.controller,
-      focusNode: _focus,
-      keyboardType: widget.keyboardType,
-      obscureText: widget.obscureText,
-      style: const TextStyle(
-        color: LiquidColors.ink,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-      ),
-      decoration: InputDecoration(
-        labelText: widget.label,
-        filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.7),
-        border: OutlineInputBorder(borderRadius: _radius),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: _radius,
-          borderSide: const BorderSide(color: LiquidColors.line, width: 1.5),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: LiquidColors.ink,
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: _radius,
-          borderSide: const BorderSide(color: LiquidColors.teal, width: 1.5),
+        const SizedBox(height: 6),
+        TextField(
+          controller: widget.controller,
+          focusNode: _focus,
+          keyboardType: widget.keyboardType,
+          obscureText: widget.obscureText,
+          style: const TextStyle(
+            color: LiquidColors.ink,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.7),
+            border: OutlineInputBorder(borderRadius: _radius),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: _radius,
+              borderSide: const BorderSide(
+                color: LiquidColors.line,
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: _radius,
+              borderSide: const BorderSide(
+                color: LiquidColors.teal,
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 16,
+            ),
+          ),
         ),
-        floatingLabelStyle: const TextStyle(
-          color: LiquidColors.teal,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+      ],
+    );
+  }
+}
+
+class LiquidError extends StatelessWidget {
+  final String message;
+
+  const LiquidError({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final errorColor = Theme.of(context).colorScheme.error;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(Icons.error_outline, size: 20, color: errorColor),
         ),
-        labelStyle: const TextStyle(color: LiquidColors.muted, fontSize: 16),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(fontSize: 16, height: 1.4, color: errorColor),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -112,7 +152,7 @@ class LiquidButton extends StatelessWidget {
         backgroundColor: LiquidColors.teal,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(58),
-        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(26),

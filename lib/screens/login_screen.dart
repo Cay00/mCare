@@ -89,13 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     LiquidField(
                       controller: _email,
                       label: 'E-mail',
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                     LiquidField(
                       controller: _password,
                       label: 'Hasło',
@@ -103,14 +103,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 12),
-                      Text(
-                        _error!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
+                      LiquidError(message: _error!),
                     ],
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     LiquidButton(label: 'Zaloguj się', onPressed: _submit),
                     TextButton(
                       onPressed: () {
@@ -125,11 +120,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           color: LiquidColors.teal,
                           fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
                     Text('Szybkie logowanie', style: theme.textTheme.titleMedium),
                     const SizedBox(height: 12),
                     for (final user in demoUsers)
