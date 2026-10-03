@@ -15,16 +15,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _age = TextEditingController();
+  final _weight = TextEditingController();
   UserRole _role = UserRole.patient;
+  Gender _gender = Gender.female;
   String? _error;
   AppUser? _registered;
 
   void _submit() {
+    final age = int.tryParse(_age.text.trim());
+    final weight = double.tryParse(_weight.text.trim().replaceAll(',', '.'));
+    if (age == null || weight == null) {
+      setState(() => _error = 'Podaj poprawny wiek i wagę');
+      return;
+    }
     final error = widget.auth.register(
       name: _name.text,
       email: _email.text,
       password: _password.text,
       role: _role,
+      age: age,
+      gender: _gender,
+      weight: weight,
     );
     if (error == null) {
       final normalized = _email.text.trim().toLowerCase();
@@ -52,6 +64,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _name.dispose();
     _email.dispose();
     _password.dispose();
+    _age.dispose();
+    _weight.dispose();
     super.dispose();
   }
 
@@ -97,6 +111,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             labelText: 'Hasło',
                             border: OutlineInputBorder(),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        SegmentedButton<Gender>(
+                          segments: const [
+                            ButtonSegment(
+                              value: Gender.female,
+                              label: Text('Kobieta'),
+                            ),
+                            ButtonSegment(
+                              value: Gender.male,
+                              label: Text('Mężczyzna'),
+                            ),
+                          ],
+                          selected: {_gender},
+                          onSelectionChanged: (selection) =>
+                              setState(() => _gender = selection.first),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _age,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Wiek',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: TextField(
+                                controller: _weight,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Waga (kg)',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         SegmentedButton<UserRole>(
@@ -156,6 +212,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 '${registered.name} · ${roleLabel(registered.role)}',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${registered.age} lat · ${genderLabel(registered.gender)} · ${registered.weight} kg',
                                 style: theme.textTheme.bodyMedium,
                               ),
                             ],
