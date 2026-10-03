@@ -79,6 +79,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _submit,
                     child: const Text('Zaloguj się'),
                   ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () => widget.auth.login('user1', 'helpMe'),
+                    child: const Text('Zaloguj jako chory'),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    onPressed: () => widget.auth.login('caregiver', 'careme'),
+                    child: const Text('Zaloguj jako opiekun'),
+                  ),
                   const SizedBox(height: 24),
                   Card(
                     child: Padding(
