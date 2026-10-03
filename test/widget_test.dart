@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:m_opiekun/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('prototyp pokazuje pięć ekranów', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(const OpiekunApp());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.widgetWithText(AppBar, 'Dziś'), findsOneWidget);
+    expect(find.text('Dzień dobry'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Leki'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Leki'), findsOneWidget);
+    expect(find.textContaining('Dawki na dziś'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Zdrowie'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Zdrowie'), findsOneWidget);
+    expect(find.textContaining('Karta medyczna'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Wizyty'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Wizyty'), findsOneWidget);
+    expect(find.textContaining('Nadchodzące wizyty'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Strefa'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, 'Strefa'), findsOneWidget);
+    expect(find.textContaining('Status pobytu'), findsOneWidget);
   });
 }
