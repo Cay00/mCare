@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/medications_screen.dart';
 import 'package:m_opiekun/screens/appointments_screen.dart';
 import 'package:m_opiekun/screens/health_screen.dart';
 import 'package:m_opiekun/screens/home_screen.dart';
@@ -44,7 +45,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final pages = [
       HomeScreen(onOpenTab: _openTab),
-      const MedicationsScreen(),
+      MedicationsScreen(),
       const HealthScreen(),
       const AppointmentsScreen(),
       const SafeZoneScreen(),
