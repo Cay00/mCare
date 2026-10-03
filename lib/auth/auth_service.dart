@@ -23,6 +23,8 @@ String? userIdFromScan(String raw) {
   return value;
 }
 
+String roleLabel(UserRole role) => role == UserRole.patient ? 'Użytkownik' : 'Opiekun';
+
 class AppUser {
   final String id;
   final String name;
@@ -78,6 +80,8 @@ class AuthService extends ChangeNotifier {
     return null;
   }
 
+  List<AppUser> get demoUsers => List.unmodifiable(_users);
+
   String? login(String email, String password) {
     final normalized = email.trim().toLowerCase();
     for (final user in _users) {
@@ -88,6 +92,32 @@ class AuthService extends ChangeNotifier {
       }
     }
     return 'Nieprawidłowy e-mail lub hasło';
+  }
+
+  String? register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) {
+    final normalized = email.trim().toLowerCase();
+    if (name.trim().isEmpty) return 'Podaj imię i nazwisko';
+    if (!normalized.contains('@')) return 'Podaj poprawny adres e-mail';
+    if (password.length < 6) return 'Hasło musi mieć co najmniej 6 znaków';
+    if (_users.any((user) => user.email == normalized)) {
+      return 'Konto z tym adresem e-mail już istnieje';
+    }
+    _users.add(
+      AppUser(
+        id: 'USR-${_users.length + 1}',
+        name: name.trim(),
+        email: normalized,
+        password: password,
+        role: role,
+      ),
+    );
+    notifyListeners();
+    return null;
   }
 
   void logout() {
