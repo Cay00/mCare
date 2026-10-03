@@ -18,7 +18,9 @@ import 'package:m_opiekun/screens/medications_screen.dart';
 import 'package:m_opiekun/screens/profile_screen.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/screens/shared_patient_screen.dart';
+import 'package:m_opiekun/screens/vital_detail_screen.dart';
 import 'package:m_opiekun/screens/wellness_guide_screen.dart';
+import 'package:m_opiekun/services/vital_store.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
 import 'package:m_opiekun/theme/app_theme.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
@@ -94,6 +96,7 @@ void main() {
           'password': const ChangePasswordScreen(),
           'zone': const Scaffold(body: SafeZoneScreen()),
           'guide': WellnessGuideScreen(guide: wellnessGuides.first),
+          'vital': const VitalDetailScreen(kind: VitalKind.bloodPressure),
           'form': const Scaffold(body: MedicationForm()),
         };
         for (final entry in pages.entries) {
@@ -173,17 +176,27 @@ void main() {
           home: AppShell(auth: auth, sharing: SharingService()),
         ),
       );
+      const headings = {
+        'Dziś': 'Dzień dobry',
+        'Leki': 'Twoje leki',
+        'Zdrowie': 'Karta medyczna',
+        'Porady': 'Porady',
+        'Profil': 'Twoje konto',
+      };
       for (final label in [
         'Leki',
         'Zdrowie',
-        'Wizyty',
+        'Porady',
         'Profil',
         'Dziś',
         'Leki',
       ]) {
         await tester.tap(find.byKey(ValueKey('nav-$label')));
         await tester.pumpAndSettle();
-        expect(find.widgetWithText(AppBar, label), findsOneWidget);
+        expect(
+          find.text(headings[label]!).hitTestable(),
+          findsNWidgets(label == 'Porady' ? 2 : 1),
+        );
         expect(tester.takeException(), isNull);
       }
       await tester.scrollUntilVisible(
@@ -254,7 +267,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    for (final label in ['Dziś', 'Leki', 'Zdrowie', 'Wizyty', 'Profil']) {
+    for (final label in ['Dziś', 'Leki', 'Zdrowie', 'Porady', 'Profil']) {
       await tester.tap(find.widgetWithText(NavigationDestination, label));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -271,7 +284,9 @@ void main() {
         greaterThanOrEqualTo(16),
       );
     }
-    expect(find.byTooltip('Wyloguj się'), findsOneWidget);
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Profil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Wyloguj się').hitTestable(), findsOneWidget);
     semantics.dispose();
   });
 }

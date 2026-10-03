@@ -7,7 +7,6 @@ import 'package:m_opiekun/screens/home_screen.dart';
 import 'package:m_opiekun/screens/medications_screen.dart';
 import 'package:m_opiekun/screens/profile_screen.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
-import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:m_opiekun/theme/app_theme.dart';
 
 class AppShell extends StatefulWidget {
@@ -35,7 +34,7 @@ class _AppShellState extends State<AppShell> {
       icon: Icons.medical_information_outlined,
       selected: Icons.medical_information,
     ),
-    (label: 'Wizyty', icon: Icons.event_outlined, selected: Icons.event),
+    (label: 'Porady', icon: Icons.spa_outlined, selected: Icons.spa),
     (label: 'Profil', icon: Icons.person_outline, selected: Icons.person),
   ];
 
@@ -54,19 +53,7 @@ class _AppShellState extends State<AppShell> {
     ];
 
     return Scaffold(
-      appBar: careAppBar(
-        context,
-        _tabs[_index].label,
-        actions: [
-          IconButton(
-            tooltip: 'Wyloguj się',
-            icon: const Icon(Icons.logout),
-            onPressed: widget.auth.logout,
-          ),
-        ],
-      ),
       body: SafeArea(
-        top: false,
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 16),

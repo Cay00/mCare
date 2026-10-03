@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-/// Odczyt kodu QR chorego. Zwraca surową treść kodu.
+/// Odczyt kodu QR pacjenta. Zwraca surową treść kodu.
 class UserCodeScannerScreen extends StatefulWidget {
   const UserCodeScannerScreen({super.key});
 
@@ -54,7 +54,7 @@ class _UserCodeScannerScreenState extends State<UserCodeScannerScreen> {
     return Scaffold(
       appBar: careAppBar(
         context,
-        'Skanuj kod chorego',
+        'Skanuj kod pacjenta',
         actions: [
           ValueListenableBuilder<MobileScannerState>(
             valueListenable: _controller,
@@ -75,7 +75,7 @@ class _UserCodeScannerScreenState extends State<UserCodeScannerScreen> {
         ],
       ),
       body: ScannerLayout(
-        instruction: 'Skieruj aparat na kod QR z profilu chorego.',
+        instruction: 'Skieruj aparat na kod QR z profilu pacjenta.',
         preview: MobileScanner(
           controller: _controller,
           useAppLifecycleState: !_locked,
@@ -91,7 +91,7 @@ class _UserCodeScannerScreenState extends State<UserCodeScannerScreen> {
                     ? 'Brak uprawnień do aparatu. Włącz aparat '
                           'w ustawieniach albo wpisz kod ręcznie.'
                     : 'Nie udało się uruchomić aparatu. '
-                          'Wpisz kod chorego ręcznie.',
+                          'Wpisz kod pacjenta ręcznie.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),

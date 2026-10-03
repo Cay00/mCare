@@ -6,7 +6,7 @@ import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 
-/// Podgląd danych chorego w zakresie, na który wyraził zgodę.
+/// Podgląd danych pacjenta w zakresie, na który wyraził zgodę.
 class SharedPatientScreen extends StatelessWidget {
   const SharedPatientScreen({
     super.key,
@@ -30,7 +30,7 @@ class SharedPatientScreen extends StatelessWidget {
       builder: (context, _) {
         final link = sharing.linkBetween(patientId, caregiverId);
         final granted = link != null && link.status == CareLinkStatus.accepted;
-        final name = patient?.name ?? 'Podopieczny';
+        final name = patient?.name ?? 'Pacjent';
 
         return Scaffold(
           appBar: careAppBar(context, name),

@@ -15,6 +15,10 @@ class LiquidField extends StatefulWidget {
   final String label;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final String? hintText;
+  final Widget? suffixIcon;
 
   const LiquidField({
     super.key,
@@ -22,6 +26,10 @@ class LiquidField extends StatefulWidget {
     required this.label,
     this.keyboardType,
     this.obscureText = false,
+    this.readOnly = false,
+    this.onTap,
+    this.hintText,
+    this.suffixIcon,
   });
 
   @override
@@ -77,6 +85,9 @@ class _LiquidFieldState extends State<LiquidField> {
           focusNode: _focus,
           keyboardType: widget.keyboardType,
           obscureText: widget.obscureText,
+          readOnly: widget.readOnly,
+          showCursor: !widget.readOnly,
+          onTap: widget.onTap,
           style: const TextStyle(
             color: LiquidColors.ink,
             fontSize: 18,
@@ -85,6 +96,8 @@ class _LiquidFieldState extends State<LiquidField> {
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.7),
+            hintText: widget.hintText,
+            suffixIcon: widget.suffixIcon,
             border: OutlineInputBorder(borderRadius: _radius),
             enabledBorder: OutlineInputBorder(
               borderRadius: _radius,

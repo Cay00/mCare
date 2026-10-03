@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:m_opiekun/app_shell.dart';
 import 'package:m_opiekun/auth/auth_service.dart';
@@ -24,6 +25,12 @@ class OpiekunApp extends StatelessWidget {
     return MaterialApp(
       title: 'mOpiekun',
       debugShowCheckedModeBanner: false,
+      supportedLocales: const [Locale('pl'), Locale('en')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: buildAppTheme(),
       home: AnimatedBuilder(
         animation: auth,

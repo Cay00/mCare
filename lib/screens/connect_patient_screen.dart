@@ -6,7 +6,7 @@ import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/screens/user_code_scanner_screen.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
 
-/// Opiekun wpisuje albo skanuje kod chorego. Powstaje prośba, nie dostęp.
+/// Opiekun wpisuje albo skanuje kod pacjenta. Powstaje prośba, nie dostęp.
 class ConnectPatientScreen extends StatefulWidget {
   const ConnectPatientScreen({
     super.key,
@@ -53,7 +53,7 @@ class _ConnectPatientScreenState extends State<ConnectPatientScreen> {
       return;
     }
     if (patient.role != UserRole.patient) {
-      setState(() => _error = 'Ten kod nie należy do chorego.');
+      setState(() => _error = 'Ten kod nie należy do pacjenta.');
       return;
     }
 
@@ -74,18 +74,18 @@ class _ConnectPatientScreenState extends State<ConnectPatientScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: careAppBar(context, 'Połącz z chorym'),
+      appBar: careAppBar(context, 'Połącz z pacjentem'),
       body: PrototypePage(
         children: [
           Text(
-            'Zeskanuj kod QR z profilu chorego albo wpisz jego kod. '
-            'Chory dostanie prośbę i sam wybierze, które dane pokazać.',
+            'Zeskanuj kod QR z profilu pacjenta albo wpisz jego kod. '
+            'Pacjent dostanie prośbę i sam wybierze, które dane pokazać.',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           CareField(
-            label: 'Kod chorego',
+            label: 'Kod pacjenta',
             child: TextField(
               key: const Key('patientCodeField'),
               controller: _code,
@@ -111,7 +111,7 @@ class _ConnectPatientScreenState extends State<ConnectPatientScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Konto demo chorego ma kod JKB-1042. '
+                'Konto demo pacjenta ma kod JKB-1042. '
                 'Możesz go wpisać albo zeskanować kod z profilu.',
                 style: theme.textTheme.bodyMedium,
               ),

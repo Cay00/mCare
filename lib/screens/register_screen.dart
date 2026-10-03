@@ -16,28 +16,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _age = TextEditingController();
+  final _birthDateText = TextEditingController();
+  final _height = TextEditingController();
   final _weight = TextEditingController();
   UserRole _role = UserRole.patient;
   Gender _gender = Gender.female;
+  DateTime? _birthDate;
   String? _error;
   AppUser? _registered;
 
   void _submit() {
-    final age = int.tryParse(_age.text.trim());
-    final weight = double.tryParse(_weight.text.trim().replaceAll(',', '.'));
-    if (age == null || weight == null) {
-      setState(() => _error = 'Podaj poprawny wiek i wagę');
-      return;
-    }
     final error = widget.auth.register(
       name: _name.text,
       email: _email.text,
       password: _password.text,
       role: _role,
-      age: age,
+      birthDate: _birthDate,
       gender: _gender,
-      weight: weight,
+      heightText: _height.text,
+      weightText: _weight.text,
     );
     if (error == null) {
       final normalized = _email.text.trim().toLowerCase();
@@ -53,6 +50,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final firstDate = DateTime(today.year - 120, 1, 1);
+    final fallback = DateTime(today.year - 70, today.month, today.day);
+    final initial = _birthDate ?? fallback;
+    final picked = await showDatePicker(
+      context: context,
+      locale: const Locale('pl'),
+      initialDate: initial.isBefore(firstDate) ? firstDate : initial,
+      firstDate: firstDate,
+      lastDate: today,
+      helpText: 'Data urodzenia',
+      cancelText: 'Anuluj',
+      confirmText: 'Wybierz',
+    );
+    if (picked == null) return;
+    setState(() {
+      _birthDate = DateTime(picked.year, picked.month, picked.day);
+      _birthDateText.text = formatBirthDate(_birthDate!);
+      _error = null;
+    });
+  }
+
   void _loginAutomatically() {
     final user = _registered;
     if (user == null) return;
@@ -65,7 +86,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _name.dispose();
     _email.dispose();
     _password.dispose();
-    _age.dispose();
+    _birthDateText.dispose();
+    _height.dispose();
     _weight.dispose();
     super.dispose();
   }
@@ -92,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          LiquidField(controller: _name, label: 'Imię i nazwisko'),
+                          LiquidField(controller: _name, label: 'Imię'),
                           const SizedBox(height: 16),
                           LiquidField(
                             controller: _email,
@@ -119,31 +141,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 setState(() => _gender = gender),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: LiquidField(
-                                  controller: _age,
-                                  label: 'Wiek',
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: LiquidField(
-                                  controller: _weight,
-                                  label: 'Waga (kg)',
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                            ],
+                          LiquidField(
+                            controller: _birthDateText,
+                            label: 'Data urodzenia',
+                            readOnly: true,
+                            hintText: 'Wybierz datę',
+                            onTap: _pickBirthDate,
+                            suffixIcon: const Icon(
+                              Icons.calendar_today_outlined,
+                              color: LiquidColors.muted,
+                            ),
                           ),
                           const SizedBox(height: 16),
+                          const Text(
+                            'Typ konta',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: LiquidColors.ink,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
                           SegmentedButton<UserRole>(
                             segments: const [
                               ButtonSegment(
                                 value: UserRole.patient,
-                                label: Text('Użytkownik'),
+                                label: Text('Pacjent'),
                                 icon: Icon(Icons.person_outline),
                               ),
                               ButtonSegment(
@@ -155,6 +178,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             selected: {_role},
                             onSelectionChanged: (selection) =>
                                 setState(() => _role = selection.first),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LiquidField(
+                                  controller: _height,
+                                  label: 'Wzrost (cm)',
+                                  keyboardType: TextInputType.number,
+                                  hintText: 'Opcjonalnie',
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: LiquidField(
+                                  controller: _weight,
+                                  label: 'Waga (kg)',
+                                  keyboardType: TextInputType.number,
+                                  hintText: 'Opcjonalnie',
+                                ),
+                              ),
+                            ],
                           ),
                           if (_error != null) ...[
                             const SizedBox(height: 12),
@@ -199,8 +244,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   style: theme.textTheme.bodyMedium,
                                 ),
                                 Text(
-                                  '${registered.age} lat · ${genderLabel(registered.gender)} · ${registered.weight} kg',
+                                  _registeredDetails(registered),
                                   style: theme.textTheme.bodyMedium,
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
@@ -219,4 +265,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+}
+
+String _registeredDetails(AppUser user) {
+  final parts = <String>[
+    '${formatBirthDate(user.birthDate)} · ${user.age} lat',
+    genderLabel(user.gender),
+  ];
+  final height = user.heightCm;
+  final weight = user.weight;
+  if (height != null) parts.add('${_measure(height)} cm');
+  if (weight != null) parts.add('${_measure(weight)} kg');
+  return parts.join(' · ');
+}
+
+String _measure(double value) {
+  if (value == value.roundToDouble()) return value.toInt().toString();
+  return value.toStringAsFixed(1).replaceAll('.', ',');
 }

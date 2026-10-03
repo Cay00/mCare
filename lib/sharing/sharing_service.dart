@@ -35,10 +35,10 @@ class CareLink {
   final Set<ShareScope> scopes;
 }
 
-/// Połączenia opiekun–chory w pamięci tej sesji aplikacji.
+/// Połączenia opiekun–pacjent w pamięci tej sesji aplikacji.
 ///
 /// Skan kodu tworzy tylko prośbę. Dane są widoczne po akceptacji
-/// i tylko w zakresach, które zaznaczył chory.
+/// i tylko w zakresach, które zaznaczył pacjent.
 class SharingService extends ChangeNotifier {
   final List<CareLink> _links = [];
 
@@ -72,7 +72,7 @@ class SharingService extends ChangeNotifier {
       if (existing.status == CareLinkStatus.accepted) {
         return 'To połączenie już istnieje.';
       }
-      return 'Prośba już czeka na akceptację chorego.';
+      return 'Prośba już czeka na akceptację pacjenta.';
     }
     _links.add(
       CareLink(

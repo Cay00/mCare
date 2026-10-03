@@ -3,13 +3,15 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:m_opiekun/services/heart_rate_store.dart';
 import 'package:m_opiekun/services/health_pdf_export.dart';
+import 'package:m_opiekun/services/vital_store.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
+import 'package:m_opiekun/screens/vital_detail_screen.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
+import 'package:m_opiekun/widgets/vital_measurement_grid.dart';
 
-/// Karta medyczna pacjenta i ręcznie wprowadzane pomiary.
+/// Karta medyczna, pomiary i terminy wizyt.
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
 
@@ -24,14 +26,18 @@ class _HealthScreenState extends State<HealthScreen> {
   String _conditions = 'Nadciśnienie, cukrzyca typu 2';
   String _doctor = 'dr Anna Nowak';
   String _emergencyContact = 'Jan Kowalski, syn · 500 100 200';
-  final _heartRateStore = HeartRateStore.instance;
+  final _vitalStore = VitalStore.instance;
 
   @override
   void initState() {
     super.initState();
-    _heartRateStore.load().then((_) {
-      if (mounted) setState(() {});
-    });
+    _vitalStore.load();
+  }
+
+  void _openVital(VitalKind kind) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => VitalDetailScreen(kind: kind)),
+    );
   }
 
   Future<void> _editPatientData() async {
@@ -64,49 +70,6 @@ class _HealthScreenState extends State<HealthScreen> {
     });
   }
 
-  Future<void> _addReading() async {
-    await _heartRateStore.load();
-    if (_heartRateStore.hasMeasurementToday()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dzisiejszy pomiar tętna jest już zapisany.'),
-        ),
-      );
-      return;
-    }
-    final pulse = await showModalBottomSheet<int>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => const _HeartRateForm(),
-    );
-    if (!mounted || pulse == null) return;
-    late final bool saved;
-    try {
-      saved = await _heartRateStore.addToday(pulse);
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nie udało się zapisać pomiaru: $error')),
-      );
-      return;
-    }
-    if (!mounted) return;
-    setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          saved
-              ? 'Zapisano dzienny pomiar tętna.'
-              : 'Dzisiejszy pomiar tętna jest już zapisany.',
-        ),
-      ),
-    );
-  }
-
   Future<void> _exportPdf() async {
     try {
       final bytes = await HealthPdfExport.build(
@@ -116,7 +79,7 @@ class _HealthScreenState extends State<HealthScreen> {
         conditions: _conditions,
         doctor: _doctor,
         emergencyContact: _emergencyContact,
-        readings: _heartRateStore.measurements.map(_readingText).toList(),
+        readings: _vitalStore.readings.map(_vitalText).toList(),
       );
       final renderBox = context.findRenderObject() as RenderBox?;
       await Share.shareXFiles(
@@ -139,92 +102,130 @@ class _HealthScreenState extends State<HealthScreen> {
     }
   }
 
-  String _readingText(HeartRateMeasurement reading) =>
-      '${_formatDate(reading.at)} · Tętno: ${reading.pulse} uderzeń/min';
+  String _vitalText(VitalReading reading) =>
+      '${_formatDate(reading.at)} · ${reading.kind.label}: ${formatVitalValue(reading)}';
 
   @override
   Widget build(BuildContext context) {
-    return PrototypePage(
-      children: [
-        const CareHeading(
-          'Karta medyczna',
-          subtitle: 'Najważniejsze informacje na wizytę i dla opiekuna.',
-        ),
-        SectionCard(
-          title: 'Dane medyczne',
-          icon: Icons.medical_information_outlined,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _Fact(label: 'Osoba', value: _name),
-              _Fact(label: 'Grupa krwi', value: _bloodType),
-              _Fact(label: 'Alergie', value: _allergies),
-              _Fact(label: 'Choroby', value: _conditions),
-              _Fact(label: 'Lekarz prowadzący', value: _doctor),
-              _Fact(
-                label: 'Kontakt alarmowy',
-                value: _emergencyContact,
-                isLast: true,
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                onPressed: _editPatientData,
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text('Edytuj dane pacjenta'),
-              ),
-            ],
-          ),
-        ),
-        FilledButton.icon(
-          onPressed: _heartRateStore.hasMeasurementToday() ? null : _addReading,
-          icon: const Icon(Icons.monitor_heart_outlined),
-          label: Text(
-            _heartRateStore.hasMeasurementToday()
-                ? 'Dzisiejsze tętno zapisane'
-                : 'Dodaj dzienny pomiar tętna',
-          ),
-        ),
-        if (_heartRateStore.measurements.isNotEmpty) ...[
-          SectionCard(
-            title: 'Tętno z ostatnich 7 dni',
-            icon: Icons.show_chart,
-            child: _HeartRateChart(measurements: _heartRateStore.measurements),
+    return ListenableBuilder(
+      listenable: _vitalStore.revision,
+      builder: (context, _) => PrototypePage(
+        children: [
+          const CareHeading(
+            'Karta medyczna',
+            subtitle: 'Najważniejsze informacje na wizytę i dla opiekuna.',
           ),
           SectionCard(
-            title: 'Dzienne pomiary tętna',
-            icon: Icons.monitor_heart_outlined,
+            title: 'Dane medyczne',
+            icon: Icons.medical_information_outlined,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var i = 0; i < _heartRateStore.measurements.length; i++)
-                  _ReadingTile(
-                    reading: _heartRateStore.measurements[i],
-                    isLast: i == _heartRateStore.measurements.length - 1,
-                  ),
+                _Fact(label: 'Osoba', value: _name),
+                _Fact(label: 'Grupa krwi', value: _bloodType),
+                _Fact(label: 'Alergie', value: _allergies),
+                _Fact(label: 'Choroby', value: _conditions),
+                _Fact(label: 'Lekarz prowadzący', value: _doctor),
+                _Fact(
+                  label: 'Kontakt alarmowy',
+                  value: _emergencyContact,
+                  isLast: true,
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: _editPatientData,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Edytuj dane pacjenta'),
+                ),
               ],
             ),
           ),
-        ],
-        FilledButton.tonalIcon(
-          onPressed: _exportPdf,
-          icon: const Icon(Icons.picture_as_pdf_outlined),
-          label: const Text('Pobierz kartę i pomiary do PDF'),
-        ),
-        const SectionCard(
-          title: 'Zalecenia',
-          icon: Icons.favorite_outline,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Advice(text: 'Mierz ciśnienie każdego ranka, przed lekami.'),
-              _Advice(text: 'Metformax bierz w trakcie posiłku.'),
-              _Advice(text: 'Pij około 1,5 litra wody dziennie.'),
-              _Advice(text: 'Krótki spacer, jeśli ciśnienie jest w normie.'),
-              _Advice(text: 'Ogranicz sól.', isLast: true),
+              Text('Pomiary', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(
+                'Dotknij kafelek, aby zobaczyć wykres. Jeden pomiar danego rodzaju na dzień.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              VitalMeasurementGrid(vitals: _vitalStore, onVital: _openVital),
             ],
           ),
-        ),
-      ],
+          if (_vitalStore.readings.isNotEmpty)
+            SectionCard(
+              title: 'Historia pomiarów',
+              icon: Icons.history,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < _vitalStore.readings.length; i++)
+                    _VitalTile(
+                      reading: _vitalStore.readings[i],
+                      isLast: i == _vitalStore.readings.length - 1,
+                    ),
+                ],
+              ),
+            ),
+          FilledButton.tonalIcon(
+            onPressed: _exportPdf,
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            label: const Text('Pobierz kartę i pomiary do PDF'),
+          ),
+          const SectionCard(
+            title: 'Zalecenia',
+            icon: Icons.favorite_outline,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Advice(text: 'Mierz ciśnienie każdego ranka, przed lekami.'),
+                _Advice(text: 'Metformax bierz w trakcie posiłku.'),
+                _Advice(text: 'Pij około 1,5 litra wody dziennie.'),
+                _Advice(text: 'Krótki spacer, jeśli ciśnienie jest w normie.'),
+                _Advice(text: 'Ogranicz sól.', isLast: true),
+              ],
+            ),
+          ),
+          const CareHeading(
+            'Wizyty',
+            subtitle: 'Przykładowe terminy i przypomnienia.',
+          ),
+          const _VisitCard(
+            day: '4',
+            month: 'paź',
+            title: 'dr Anna Nowak',
+            details: 'Kardiolog · Przychodnia Lipowa',
+            time: '10:30',
+            reminder: 'Przypomnienie: dzień wcześniej i 2 godziny przed',
+          ),
+          const _VisitCard(
+            day: '12',
+            month: 'paź',
+            title: 'Badanie krwi',
+            details: 'Laboratorium · na czczo',
+            time: '09:00',
+            reminder: 'Przypomnienie: wieczór wcześniej',
+          ),
+          Text('Historia', style: Theme.of(context).textTheme.titleLarge),
+          const _VisitCard(
+            day: '12',
+            month: 'wrz',
+            title: 'Kontrola ciśnienia',
+            details: 'dr Anna Nowak · odbyta',
+            time: '11:00',
+            reminder: 'Bez kolejnego przypomnienia',
+            muted: true,
+          ),
+          FilledButton.icon(
+            onPressed: () => showPrototypeHint(context, 'Dodawanie wizyty'),
+            icon: const Icon(Icons.add),
+            label: const Text('Dodaj wizytę'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -326,178 +327,31 @@ class _PatientDataFormState extends State<_PatientDataForm> {
   );
 }
 
-class _HeartRateForm extends StatefulWidget {
-  const _HeartRateForm();
+class _VitalTile extends StatelessWidget {
+  const _VitalTile({required this.reading, required this.isLast});
 
-  @override
-  State<_HeartRateForm> createState() => _HeartRateFormState();
-}
-
-class _HeartRateFormState extends State<_HeartRateForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _pulse = TextEditingController();
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  String? _validPulse(String? value) {
-    final number = int.tryParse(value?.trim() ?? '');
-    if (number == null || number < 30 || number > 220) {
-      return 'Podaj tętno w zakresie 30–220 uderzeń/min.';
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Dzienny pomiar tętna',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            const Text('Wpisz tętno spoczynkowe zmierzone dzisiaj.'),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _pulse,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Tętno (uderzenia/min)',
-                border: OutlineInputBorder(),
-              ),
-              validator: _validPulse,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) return;
-                Navigator.pop(context, int.parse(_pulse.text.trim()));
-              },
-              child: const Text('Zapisz pomiar'),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-class _ReadingTile extends StatelessWidget {
-  const _ReadingTile({required this.reading, required this.isLast});
-  final HeartRateMeasurement reading;
+  final VitalReading reading;
   final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    final timestamp = _formatDate(reading.at);
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(timestamp, style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            _formatDate(reading.at),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 4),
           Text(
-            '${reading.pulse} uderzeń/min',
+            '${reading.kind.label}: ${formatVitalValue(reading)}',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
       ),
     );
-  }
-}
-
-class _HeartRateChart extends StatelessWidget {
-  const _HeartRateChart({required this.measurements});
-
-  final List<HeartRateMeasurement> measurements;
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final days = List.generate(7, (index) {
-      final date = DateTime(now.year, now.month, now.day - (6 - index));
-      return (date: date, measurement: _measurementOn(date));
-    });
-    final theme = Theme.of(context);
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 170,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final day in days)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          day.measurement == null
-                              ? '–'
-                              : '${day.measurement!.pulse}',
-                          style: theme.textTheme.labelSmall,
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          height: day.measurement == null
-                              ? 4
-                              : (day.measurement!.pulse / 220 * 118)
-                                    .clamp(14, 118)
-                                    .toDouble(),
-                          decoration: BoxDecoration(
-                            color: day.measurement == null
-                                ? theme.colorScheme.outlineVariant
-                                : theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${day.date.day}.${day.date.month}',
-                          style: theme.textTheme.labelSmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Uderzenia na minutę · brak słupka oznacza brak pomiaru',
-          style: theme.textTheme.bodySmall,
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  HeartRateMeasurement? _measurementOn(DateTime date) {
-    for (final measurement in measurements) {
-      if (measurement.at.year == date.year &&
-          measurement.at.month == date.month &&
-          measurement.at.day == date.day) {
-        return measurement;
-      }
-    }
-    return null;
   }
 }
 
@@ -547,6 +401,63 @@ class _Fact extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _VisitCard extends StatelessWidget {
+  const _VisitCard({
+    required this.day,
+    required this.month,
+    required this.title,
+    required this.details,
+    required this.time,
+    required this.reminder,
+    this.muted = false,
+  });
+
+  final String day;
+  final String month;
+  final String title;
+  final String details;
+  final String time;
+  final String reminder;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mutedColor = theme.colorScheme.onSurfaceVariant;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              '$day $month · $time',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(title, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 6),
+            Text(details, style: theme.textTheme.bodyLarge),
+            const Divider(),
+            Text(
+              reminder,
+              style: theme.textTheme.bodyMedium?.copyWith(color: mutedColor),
+            ),
+            if (muted)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Wizyta odbyta'),
+              ),
+          ],
+        ),
       ),
     );
   }

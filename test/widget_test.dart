@@ -19,23 +19,32 @@ void main() {
     await tester.tap(find.text('Zaloguj się'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, 'Dziś'), findsOneWidget);
-    expect(find.text('Dzień dobry'), findsOneWidget);
+    expect(find.text('Dzień dobry').hitTestable(), findsOneWidget);
 
     await tester.tap(find.widgetWithText(NavigationDestination, 'Leki'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Leki'), findsOneWidget);
+    expect(find.text('Twoje leki').hitTestable(), findsOneWidget);
     expect(find.textContaining('Dawki na dziś'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(NavigationDestination, 'Zdrowie'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Zdrowie'), findsOneWidget);
-    expect(find.textContaining('Karta medyczna'), findsOneWidget);
-
-    await tester.tap(find.widgetWithText(NavigationDestination, 'Wizyty'));
+    expect(find.text('Karta medyczna').hitTestable(), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Kardiolog · Przychodnia Lipowa'),
+      300,
+    );
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Wizyty'), findsOneWidget);
+    expect(find.text('Kardiolog · Przychodnia Lipowa'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Dodaj wizytę'), 300);
+    await tester.pumpAndSettle();
+    expect(find.text('Dodaj wizytę'), findsOneWidget);
+    expect(find.text('Wizyta odbyta'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Porady'));
+    await tester.pumpAndSettle();
+    expect(find.text('Porady').hitTestable(), findsNWidgets(2));
     expect(find.text('Nawodnienie'), findsOneWidget);
+    expect(find.text('Dodaj wizytę').hitTestable(), findsNothing);
 
     await tester.tap(find.text('Nawodnienie'));
     await tester.pumpAndSettle();
@@ -45,13 +54,9 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('dr Anna Nowak'), 300);
-    await tester.pumpAndSettle();
-    expect(find.text('dr Anna Nowak'), findsOneWidget);
-
     await tester.tap(find.widgetWithText(NavigationDestination, 'Profil'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Profil'), findsOneWidget);
+    expect(find.text('Twoje konto').hitTestable(), findsOneWidget);
     expect(find.text('Jakub B'), findsOneWidget);
     expect(find.text('Zmień hasło'), findsOneWidget);
 
@@ -72,7 +77,7 @@ void main() {
     expect(find.textContaining('Status pobytu'), findsOneWidget);
   });
 
-  testWidgets('opiekun dostaje dane dopiero po zgodzie chorego', (
+  testWidgets('opiekun dostaje dane dopiero po zgodzie pacjenta', (
     WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -100,7 +105,8 @@ void main() {
     await _scrollProfileTo(tester, find.textContaining('Czekamy, aż Jakub B'));
     expect(find.textContaining('Czekamy, aż Jakub B'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.logout));
+    await tester.ensureVisible(find.text('Wyloguj się'));
+    await tester.tap(find.text('Wyloguj się'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Jakub B'));
     await tester.pumpAndSettle();
@@ -117,7 +123,8 @@ void main() {
     await _scrollProfileTo(tester, find.text('Widzi: Leki, Zdrowie, Wizyty'));
     expect(find.text('Widzi: Leki, Zdrowie, Wizyty'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.logout));
+    await tester.ensureVisible(find.text('Wyloguj się'));
+    await tester.tap(find.text('Wyloguj się'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Anna Kowalska'));
     await tester.pumpAndSettle();

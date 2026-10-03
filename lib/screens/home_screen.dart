@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:m_opiekun/services/heart_rate_store.dart';
+import 'package:m_opiekun/services/vital_store.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
@@ -12,8 +12,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final heartRateStore = HeartRateStore.instance;
-    heartRateStore.load();
+    final vitalStore = VitalStore.instance;
+    vitalStore.load();
     return PrototypePage(
       children: [
         CareHeading(
@@ -96,7 +96,7 @@ class HomeScreen extends StatelessWidget {
           kicker: 'Najbliższa wizyta',
           title: 'Jutro, 10:30',
           subtitle: 'dr Anna Nowak · kardiolog',
-          onTap: () => onOpenTab(3),
+          onTap: () => onOpenTab(2),
         ),
         CareLinkCard(
           icon: Icons.location_on_outlined,
@@ -106,18 +106,18 @@ class HomeScreen extends StatelessWidget {
           onTap: () => openSafeZone(context),
         ),
         AnimatedBuilder(
-          animation: heartRateStore.revision,
+          animation: vitalStore.revision,
           builder: (context, _) {
-            final today = heartRateStore.measurementForDay(DateTime.now());
+            final missing = vitalStore.missingTodayCount();
             return CareLinkCard(
-              icon: Icons.monitor_heart_outlined,
+              icon: Icons.show_chart_outlined,
               kicker: 'Przypomnienie na dziś',
-              title: today == null
-                  ? 'Zmierz dzienne tętno'
-                  : 'Dzisiejsze tętno: ${today.pulse} uderzeń/min',
-              subtitle: today == null
-                  ? 'Zapisz pomiar, aby uzupełnić wykres tygodniowy.'
-                  : 'Pomiar zapisany · wróć jutro po kolejny.',
+              title: missing == 0
+                  ? 'Dzisiejsze pomiary uzupełnione'
+                  : 'Uzupełnij pomiary ($missing)',
+              subtitle: missing == 0
+                  ? 'Wyniki trafiają do wykresów tygodniowych.'
+                  : 'Zapisz cukier, ciśnienie, wagę i inne wyniki.',
               onTap: () => onOpenTab(2),
             );
           },

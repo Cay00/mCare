@@ -34,7 +34,7 @@ class ProfileScreen extends StatelessWidget {
               'Twoje konto',
               subtitle: isPatient
                   ? 'Ty wybierasz, komu i jakie dane udostępniasz.'
-                  : 'Twoje dane i podopieczni, którzy udzielili Ci dostępu.',
+                  : 'Twoje dane i pacjenci, którzy udzielili Ci dostępu.',
             ),
             _AccountCard(user: user),
             if (isPatient) ..._pendingRequests(user),
@@ -51,6 +51,14 @@ class ProfileScreen extends StatelessWidget {
                 },
                 icon: const Icon(Icons.lock_outline),
                 label: const Text('Zmień hasło'),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: auth.logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Wyloguj się'),
               ),
             ),
             const _ZoneEntry(),
@@ -138,22 +146,22 @@ class ProfileScreen extends StatelessWidget {
             );
           },
           icon: const Icon(Icons.qr_code_scanner),
-          label: const Text('Połącz z chorym'),
+          label: const Text('Połącz z pacjentem'),
         ),
       ),
       if (links.isEmpty)
         const SectionCard(
-          title: 'Podopieczni',
+          title: 'Pacjenci',
           icon: Icons.people_outline,
           child: Text(
-            'Po zeskanowaniu kodu chory musi potwierdzić prośbę. '
+            'Po zeskanowaniu kodu pacjent musi potwierdzić prośbę. '
             'Dopiero wtedy zobaczysz wybrane dane.',
           ),
         )
       else
         for (final link in links)
           _WardCard(
-            patientName: auth.userById(link.patientId)?.name ?? 'Chory',
+            patientName: auth.userById(link.patientId)?.name ?? 'Pacjent',
             link: link,
             onOpen: link.status == CareLinkStatus.accepted
                 ? () {
@@ -488,7 +496,7 @@ class _WardCard extends StatelessWidget {
                   title: const Text('Rozłączyć?'),
                   content: Text(
                     accepted
-                        ? '$patientName zniknie z listy podopiecznych.'
+                        ? '$patientName zniknie z listy pacjentów.'
                         : 'Prośba do $patientName zostanie wycofana.',
                   ),
                   actions: [
