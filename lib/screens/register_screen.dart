@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
+import 'package:m_opiekun/widgets/liquid.dart';
 
 class RegisterScreen extends StatefulWidget {
   final AuthService auth;
@@ -76,159 +77,151 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final registered = _registered;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rejestracja')),
+      backgroundColor: LiquidColors.bg,
+      appBar: AppBar(
+        backgroundColor: LiquidColors.bg,
+        title: const Text('Rejestracja'),
+      ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: registered == null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          controller: _name,
-                          decoration: const InputDecoration(
-                            labelText: 'Imię i nazwisko',
-                            border: OutlineInputBorder(),
+        child: LiquidBackground(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: registered == null
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          LiquidField(controller: _name, label: 'Imię i nazwisko'),
+                          const SizedBox(height: 14),
+                          LiquidField(
+                            controller: _email,
+                            label: 'E-mail',
+                            keyboardType: TextInputType.emailAddress,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _email,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'E-mail',
-                            border: OutlineInputBorder(),
+                          const SizedBox(height: 14),
+                          LiquidField(
+                            controller: _password,
+                            label: 'Hasło',
+                            obscureText: true,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _password,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Hasło',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        SegmentedButton<Gender>(
-                          segments: const [
-                            ButtonSegment(
-                              value: Gender.female,
-                              label: Text('Kobieta'),
-                            ),
-                            ButtonSegment(
-                              value: Gender.male,
-                              label: Text('Mężczyzna'),
-                            ),
-                          ],
-                          selected: {_gender},
-                          onSelectionChanged: (selection) =>
-                              setState(() => _gender = selection.first),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _age,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  labelText: 'Wiek',
-                                  border: OutlineInputBorder(),
-                                ),
+                          const SizedBox(height: 14),
+                          SegmentedButton<Gender>(
+                            segments: const [
+                              ButtonSegment(
+                                value: Gender.female,
+                                label: Text('Kobieta'),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextField(
-                                controller: _weight,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  labelText: 'Waga (kg)',
-                                  border: OutlineInputBorder(),
-                                ),
+                              ButtonSegment(
+                                value: Gender.male,
+                                label: Text('Mężczyzna'),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        SegmentedButton<UserRole>(
-                          segments: const [
-                            ButtonSegment(
-                              value: UserRole.patient,
-                              label: Text('Użytkownik'),
-                              icon: Icon(Icons.person_outline),
-                            ),
-                            ButtonSegment(
-                              value: UserRole.caregiver,
-                              label: Text('Opiekun'),
-                              icon: Icon(Icons.favorite_outline),
-                            ),
-                          ],
-                          selected: {_role},
-                          onSelectionChanged: (selection) =>
-                              setState(() => _role = selection.first),
-                        ),
-                        if (_error != null) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            _error!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.error,
-                            ),
+                            ],
+                            selected: {_gender},
+                            onSelectionChanged: (selection) =>
+                                setState(() => _gender = selection.first),
                           ),
-                        ],
-                        const SizedBox(height: 24),
-                        FilledButton(
-                          onPressed: _submit,
-                          child: const Text('Zarejestruj się'),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Column(
+                          const SizedBox(height: 14),
+                          Row(
                             children: [
-                              Icon(
-                                Icons.check_circle_outline,
-                                size: 48,
-                                color: colorScheme.onPrimaryContainer,
+                              Expanded(
+                                child: LiquidField(
+                                  controller: _age,
+                                  label: 'Wiek',
+                                  keyboardType: TextInputType.number,
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Konto utworzone',
-                                style: theme.textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '${registered.name} · ${roleLabel(registered.role)}',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${registered.age} lat · ${genderLabel(registered.gender)} · ${registered.weight} kg',
-                                style: theme.textTheme.bodyMedium,
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: LiquidField(
+                                  controller: _weight,
+                                  label: 'Waga (kg)',
+                                  keyboardType: TextInputType.number,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        FilledButton(
-                          onPressed: _loginAutomatically,
-                          child: const Text('Zaloguj się automatycznie'),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 14),
+                          SegmentedButton<UserRole>(
+                            segments: const [
+                              ButtonSegment(
+                                value: UserRole.patient,
+                                label: Text('Użytkownik'),
+                                icon: Icon(Icons.person_outline),
+                              ),
+                              ButtonSegment(
+                                value: UserRole.caregiver,
+                                label: Text('Opiekun'),
+                                icon: Icon(Icons.favorite_outline),
+                              ),
+                            ],
+                            selected: {_role},
+                            onSelectionChanged: (selection) =>
+                                setState(() => _role = selection.first),
+                          ),
+                          if (_error != null) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              _error!,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.error,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 24),
+                          LiquidButton(
+                            label: 'Zarejestruj się',
+                            onPressed: _submit,
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: LiquidColors.mint.withValues(alpha: 0.35),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(44),
+                                topRight: Radius.circular(44),
+                                bottomRight: Radius.circular(14),
+                                bottomLeft: Radius.circular(44),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_outline,
+                                  size: 48,
+                                  color: LiquidColors.teal,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Konto utworzone',
+                                  style: theme.textTheme.titleLarge,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '${registered.name} · ${roleLabel(registered.role)}',
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                                Text(
+                                  '${registered.age} lat · ${genderLabel(registered.gender)} · ${registered.weight} kg',
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          LiquidButton(
+                            label: 'Zaloguj się automatycznie',
+                            onPressed: _loginAutomatically,
+                          ),
+                        ],
+                      ),
+              ),
             ),
           ),
         ),
