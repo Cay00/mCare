@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:archive/archive.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -41,11 +41,22 @@ class RplRepository {
     if (record == null) return null;
     return MedicationProduct.fromJson(record as Map<String, dynamic>);
   }
+
+  Future<List<MedicationProduct>> prescriptionProducts() async {
+    final index = await (_index ??= _load());
+    return (index['packages'] as Map<String, dynamic>).values
+        .map(
+          (record) =>
+              MedicationProduct.fromJson(record as Map<String, dynamic>),
+        )
+        .toList(growable: false);
+  }
 }
 
 Map<String, dynamic> _decodeIndex(Uint8List bytes) {
   final index =
-      jsonDecode(utf8.decode(gzip.decode(bytes))) as Map<String, dynamic>;
+      jsonDecode(utf8.decode(GZipDecoder().decodeBytes(bytes)))
+          as Map<String, dynamic>;
   if (index['schemaVersion'] != 1 ||
       index['packages'] is! Map ||
       index['ambiguousGtins'] is! List) {

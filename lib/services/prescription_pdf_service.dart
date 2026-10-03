@@ -11,6 +11,8 @@ import 'package:pdfrx/pdfrx.dart';
 import '../models/prescription.dart';
 import 'prescription_parser.dart';
 import 'prescription_pdf_layout.dart';
+import 'prescription_rpl_matcher.dart';
+import 'rpl_repository.dart';
 
 class PrescriptionReadException implements Exception {
   const PrescriptionReadException(this.message);
@@ -25,7 +27,12 @@ bool supportsPrescriptionOcr({
     (platform == TargetPlatform.android || platform == TargetPlatform.iOS);
 
 class PrescriptionPdfService {
-  PrescriptionPdfService({this.ocrPage, this.extractPageText});
+  PrescriptionPdfService({
+    this.ocrPage,
+    this.extractPageText,
+    RplRepository? repository,
+  }) : _repository = repository ?? RplRepository();
+  final RplRepository _repository;
 
   /// Optional OCR adapter, also usable in desktop extraction tests.
   final Future<String> Function(PdfPage)? ocrPage;
@@ -161,8 +168,25 @@ class PrescriptionPdfService {
           'PDF został otwarty, ale nie udało się rozpoznać danych recepty. Możesz sprawdzić oryginał PDF.',
         ]);
       }
+      var items = parsed.items;
+      if (items.isNotEmpty) {
+        onProgress?.call(
+          'Sprawdzanie nazw leków w Rejestrze Produktów Leczniczych…',
+        );
+        try {
+          final products = await _repository.prescriptionProducts();
+          items = items
+              .map((item) => matchPrescriptionToRpl(item, products))
+              .toList();
+        } catch (error) {
+          _logFailure('wczytywanie RPL', error);
+          warnings.add(
+            'Nie udało się wczytać bazy RPL. Dane pochodzą z PDF i wymagają sprawdzenia.',
+          );
+        }
+      }
       return PrescriptionImport(
-        items: parsed.items,
+        items: items,
         warnings: [...warnings, ...parsed.warnings],
         pdfBytes: bytes,
         usedOcr: usedOcr,

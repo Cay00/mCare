@@ -100,3 +100,15 @@ Strona zawierająca samo oświadczenie nie uruchamia OCR. Pełny zapis
 wielowierszowego dawkowania jest zachowany bez interpretowania czasu terapii.
 Test na pliku źródłowym odczytał jedną pozycję wraz z dawkowaniem bez OCR.
 W repozytorium test regresji korzysta z syntetycznego PDF bez danych pacjenta.
+
+## Dopasowanie nazwy do bazy skanera
+
+Po analizie PDF import korzysta z tego samego lokalnego indeksu RPL co skaner.
+Dopasowuje pełną nazwę, moc i postać po normalizacji wielkości liter, odstępów
+oraz jawnych skrótów tabl., kaps. i daw. Nie stosuje podobieństwa literowego.
+Warianty opakowań tego samego leku są grupowane; nie wybiera się ich GTIN.
+Przy jednoznacznym wyniku nazwa, moc i postać pochodzą z RPL, a opakowanie,
+dawkowanie i tekst źródłowy pozostają z recepty. Komunikat wymaga sprawdzenia
+zgodności. Brak dopasowania lub niejednoznaczność pozostawia oryginalne dane
+z ostrzeżeniem. Awaria bazy nie przerywa importu PDF.
+Dekodowanie gzip indeksu używa pakietu archive, dostępnego także w web.
