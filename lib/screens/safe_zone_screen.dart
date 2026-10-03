@@ -3,10 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 
-/// Bezpieczna strefa.
+/// Bezpieczna strefa, otwierana z profilu.
 ///
 /// Do zbudowania: mapa, zapis środka i promienia strefy, odczyt GPS
 /// oraz alert do opiekuna po wyjściu ze strefy. Tu jest tylko podgląd.
+void openSafeZone(BuildContext context) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: const Text('Strefa')),
+        body: const SafeZoneScreen(),
+      ),
+    ),
+  );
+}
+
 class SafeZoneScreen extends StatelessWidget {
   const SafeZoneScreen({super.key});
 

@@ -5,12 +5,14 @@ import 'package:m_opiekun/screens/appointments_screen.dart';
 import 'package:m_opiekun/screens/health_screen.dart';
 import 'package:m_opiekun/screens/home_screen.dart';
 import 'package:m_opiekun/screens/medications_screen.dart';
-import 'package:m_opiekun/screens/safe_zone_screen.dart';
+import 'package:m_opiekun/screens/profile_screen.dart';
+import 'package:m_opiekun/sharing/sharing_service.dart';
 
 class AppShell extends StatefulWidget {
   final AuthService auth;
+  final SharingService sharing;
 
-  const AppShell({super.key, required this.auth});
+  const AppShell({super.key, required this.auth, required this.sharing});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -32,11 +34,7 @@ class _AppShellState extends State<AppShell> {
       selected: Icons.medical_information,
     ),
     (label: 'Wizyty', icon: Icons.event_outlined, selected: Icons.event),
-    (
-      label: 'Strefa',
-      icon: Icons.location_on_outlined,
-      selected: Icons.location_on,
-    ),
+    (label: 'Profil', icon: Icons.person_outline, selected: Icons.person),
   ];
 
   void _openTab(int index) {
@@ -50,7 +48,7 @@ class _AppShellState extends State<AppShell> {
       const MedicationsScreen(),
       const HealthScreen(),
       const AppointmentsScreen(),
-      const SafeZoneScreen(),
+      ProfileScreen(auth: widget.auth, sharing: widget.sharing),
     ];
 
     return Scaffold(

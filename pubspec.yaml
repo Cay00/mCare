@@ -37,6 +37,7 @@ dependencies:
   supabase_flutter: ^2.10.0
   mobile_scanner: ^7.4.2
   xml: ^6.6.1
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

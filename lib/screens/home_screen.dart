@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 
 /// Pulpit dnia.
 ///
 /// Docelowo skrót tego, co senior ma zrobić teraz: lek, wizyta,
-/// status strefy i zalecenie. Karty tylko przełączają zakładki.
+/// status strefy i zalecenie. Karty leków, wizyt i zaleceń przełączają
+/// zakładki. Strefa otwiera się jako osobny ekran.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenTab});
 
-  /// Indeksy jak w dolnej nawigacji: 1 leki, 2 zdrowie, 3 wizyty, 4 strefa.
+  /// Indeksy jak w dolnej nawigacji: 1 leki, 2 zdrowie, 3 wizyty.
   final ValueChanged<int> onOpenTab;
 
   @override
@@ -58,7 +60,7 @@ class HomeScreen extends StatelessWidget {
           kicker: 'Bezpieczna strefa',
           title: 'W domu',
           subtitle: 'ul. Lipowa 12 · promień 200 m',
-          onTap: () => onOpenTab(4),
+          onTap: () => openSafeZone(context),
         ),
         _SummaryTile(
           icon: Icons.favorite_outline,

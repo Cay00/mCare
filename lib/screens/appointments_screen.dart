@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:m_opiekun/models/wellness_guide.dart';
+import 'package:m_opiekun/screens/wellness_guide_screen.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 
-/// Wizyty i przypomnienia.
+/// Porady zdrowotne i — tymczasowo na dole — lista wizyt.
 ///
-/// Do zbudowania: dodawanie terminu, powiadomienia przed wizytą
-/// i archiwum odbytych wizyt. Lista jest statyczna.
+/// Wizyty mają później trafić na osobny ekran. Karty terminów zostają
+/// bez zmian, tylko poniżej porad.
 class AppointmentsScreen extends StatelessWidget {
   const AppointmentsScreen({super.key});
 
@@ -13,9 +15,16 @@ class AppointmentsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PrototypePage(
       lead:
-          'Nadchodzące wizyty i badania, przypomnienia przed terminem '
-          'oraz krótka historia.',
+          'Wybierz poradę i przeczytaj krótkie ćwiczenie. '
+          'Możesz wracać do nich, kiedy potrzebujesz chwili spokoju.',
       children: [
+        Text('Porady', style: Theme.of(context).textTheme.titleLarge),
+        for (var i = 0; i < wellnessGuides.length; i += 2)
+          _GuideRow(
+            left: wellnessGuides[i],
+            right: i + 1 < wellnessGuides.length ? wellnessGuides[i + 1] : null,
+          ),
+        const SizedBox(height: 8),
         Text('Nadchodzące', style: Theme.of(context).textTheme.titleLarge),
         const _VisitCard(
           day: '4',
@@ -49,6 +58,82 @@ class AppointmentsScreen extends StatelessWidget {
           label: const Text('Dodaj wizytę'),
         ),
       ],
+    );
+  }
+}
+
+class _GuideRow extends StatelessWidget {
+  const _GuideRow({required this.left, required this.right});
+
+  final WellnessGuide left;
+  final WellnessGuide? right;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: _GuideTile(guide: left)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: right == null
+                ? const SizedBox.shrink()
+                : _GuideTile(guide: right!),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuideTile extends StatelessWidget {
+  const _GuideTile({required this.guide});
+
+  final WellnessGuide guide;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => WellnessGuideScreen(guide: guide),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(guide.icon, color: theme.colorScheme.primary),
+              ),
+              const SizedBox(height: 12),
+              Text(guide.title, style: theme.textTheme.titleMedium),
+              const Spacer(),
+              const SizedBox(height: 6),
+              Text(
+                guide.duration,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

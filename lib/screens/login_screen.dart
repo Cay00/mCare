@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Chory: User1 / helpMe',
+                            'Chory: user1 / helpMe · kod JKB-1042',
                             style: theme.textTheme.bodyMedium,
                           ),
                           Text(

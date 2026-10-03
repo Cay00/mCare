@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 
 /// Wspólny układ ekranu prototypu: krótki opis zakresu i przewijana treść.
 class PrototypePage extends StatelessWidget {
-  const PrototypePage({super.key, required this.lead, required this.children});
+  const PrototypePage({
+    super.key,
+    required this.lead,
+    required this.children,
+    this.listKey,
+  });
 
   final String lead;
   final List<Widget> children;
+  final Key? listKey;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +34,7 @@ class PrototypePage extends StatelessWidget {
     }
 
     return ListView(
+      key: listKey,
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
       children: items,
     );
