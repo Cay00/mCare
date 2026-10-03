@@ -112,3 +112,21 @@ dawkowanie i tekst źródłowy pozostają z recepty. Komunikat wymaga sprawdzeni
 zgodności. Brak dopasowania lub niejednoznaczność pozostawia oryginalne dane
 z ostrzeżeniem. Awaria bazy nie przerywa importu PDF.
 Dekodowanie gzip indeksu używa pakietu archive, dostępnego także w web.
+
+## Osobne godziny i dni przyjmowania (aktualne zachowanie)
+
+Ta zmiana zastępuje opis wcześniejszego automatycznego rozstawiania godzin.
+Schematy 1x1, 2x1 i 1-0-1 ustawiają liczbę pustych pól godzin; każde trzeba
+uzupełnić osobno. Zera w zapisie rano–południe–wieczór pomijają daną porę.
+Zmiana pierwszej godziny nie zmienia pozostałych. Brak godziny lub powtórzona
+ godzina blokuje zapis aktywnego planu.
+Rozpoznawane są końcówki „co drugi dzień”, „co dwa dni”, „co trzy dni”
+i „co N dni” (1–365), np. „2x1 co dwa dni” lub „1 tabletka co 2 dni”.
+Użytkownik może zmienić odstęp i datę pierwszego dnia. Model przechowuje
+odstęp i datę; lista dzisiejszych dawek filtruje dni poza harmonogramem.
+Odstępy liczone są w dniach kalendarzowych, niezależnie od zmiany czasu.
+Złożone i warunkowe zalecenia pozostają tekstem do ręcznego sprawdzenia.
+Tak jak dotychczas leki dodawane w tym prototypie pozostają w stanie ekranu;
+nie dodano trwałego przechowywania ani systemowych powiadomień.
+Źródło znaczenia zapisu 1-0-1:
+https://www.mp.pl/empendium/aktualnosci/353713,dawkowanie-zlozone

@@ -111,7 +111,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('Ustaw'));
         await tester.pumpAndSettle();
-        expect(edited, [1395, 435, 915]);
+        expect(edited, [1395, 960, 0]);
         expect(tester.takeException(), isNull);
       },
     );

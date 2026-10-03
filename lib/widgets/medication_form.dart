@@ -49,6 +49,9 @@ class _MedicationFormState extends State<MedicationForm> {
   MedicationProduct? get _initialProduct =>
       widget.initialStock?.product ?? widget.product;
   late List<int> _doseMinutes = List.of(widget.initialStock?.doseMinutes ?? []);
+  late int _everyDays = widget.initialStock?.everyDays ?? 1;
+  late DateTime _scheduleStart =
+      widget.initialStock?.scheduleStart ?? DateTime.now();
   late final _name = TextEditingController(text: _initialProduct?.name);
   late final _strength = TextEditingController(text: _initialProduct?.strength);
   late final _shape = TextEditingController(
@@ -119,6 +122,8 @@ class _MedicationFormState extends State<MedicationForm> {
         ownedPackages: _number(_packages.text)?.toInt(),
         looseUnits: _number(_looseUnits.text),
         doseMinutes: List.unmodifiable(_doseMinutes),
+        everyDays: _everyDays,
+        scheduleStart: _scheduleStart,
       ),
     );
   }
@@ -244,7 +249,9 @@ class _MedicationFormState extends State<MedicationForm> {
               FormField<List<int>>(
                 initialValue: _doseMinutes,
                 validator: (times) =>
-                    times != null && times.toSet().length != times.length
+                    times != null && times.any((time) => time < 0)
+                    ? 'Ustaw osobno godzinę każdego przyjęcia leku.'
+                    : times != null && times.toSet().length != times.length
                     ? 'Godziny dawek nie mogą się powtarzać.'
                     : null,
                 builder: (state) => Column(
@@ -257,6 +264,12 @@ class _MedicationFormState extends State<MedicationForm> {
                           value.text,
                         ),
                         initialMinutes: _doseMinutes,
+                        initialEveryDays: _everyDays,
+                        initialStart: _scheduleStart,
+                        onPatternChanged: (days, start) {
+                          _everyDays = days;
+                          _scheduleStart = start;
+                        },
                         onChanged: (times) {
                           _doseMinutes = times;
                           state.didChange(times);

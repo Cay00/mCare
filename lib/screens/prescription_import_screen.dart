@@ -154,7 +154,7 @@ class _PrescriptionImportScreenState extends State<PrescriptionImportScreen> {
                     ),
                     if (_reviewed[i]?.doseMinutes.isNotEmpty ?? false)
                       Text(
-                        'Godziny: ${_reviewed[i]!.doseMinutes.map(doseTimeLabel).join(', ')}',
+                        'Godziny: ${_reviewed[i]!.doseMinutes.map(doseTimeLabel).join(', ')} • ${_reviewed[i]!.everyDays == 1 ? 'codziennie' : 'co ${_reviewed[i]!.everyDays} dni'}',
                       ),
                     for (final warning in _result!.items[i].warnings)
                       Padding(

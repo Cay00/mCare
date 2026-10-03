@@ -85,13 +85,29 @@ void main() {
             .text,
         isEmpty,
       );
-      await visibleTap(tester, find.text('Ustaw liczbę dawek z recepty: 3'));
+      await visibleTap(
+        tester,
+        find.text('Zastosuj schemat z recepty: 3 przyjęć'),
+      );
       await visibleTap(tester, find.byKey(const ValueKey('dose-time-0')));
       await tester.enterText(find.byKey(const ValueKey('dose-hour')), '09');
       await tester.enterText(find.byKey(const ValueKey('dose-minute')), '30');
       await visibleTap(tester, find.text('Ustaw'));
-      expect(find.text('Dawka 2: 17:30'), findsOneWidget);
-      expect(find.text('Dawka 3: 01:30'), findsOneWidget);
+      expect(find.text('Dawka 2: wybierz godzinę'), findsOneWidget);
+      await visibleTap(tester, find.text('Zapisz lek'));
+      expect(
+        find.text('Ustaw osobno godzinę każdego przyjęcia leku.'),
+        findsOneWidget,
+      );
+      for (var i = 1; i < 3; i++) {
+        await visibleTap(tester, find.byKey(ValueKey('dose-time-$i')));
+        await tester.enterText(
+          find.byKey(const ValueKey('dose-hour')),
+          i == 1 ? '15' : '21',
+        );
+        await tester.enterText(find.byKey(const ValueKey('dose-minute')), '00');
+        await visibleTap(tester, find.text('Ustaw'));
+      }
       await visibleTap(tester, find.text('Zapisz lek'));
       expect(find.byType(MedicationForm), findsOneWidget);
       expect(
@@ -101,6 +117,10 @@ void main() {
       await visibleTap(tester, find.byKey(const Key('confirmPrescription')));
       await visibleTap(tester, find.text('Zapisz lek'));
       expect(find.byType(MedicationForm), findsNothing);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('savePrescriptionImport')),
+        200,
+      );
       await visibleTap(tester, find.byKey(const Key('savePrescriptionImport')));
       expect(find.byType(PrescriptionImportScreen), findsNothing);
       await tester.scrollUntilVisible(find.text('09:30'), 300, maxScrolls: 40);
