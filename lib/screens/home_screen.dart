@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_opiekun/services/heart_rate_store.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
@@ -11,6 +12,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final heartRateStore = HeartRateStore.instance;
+    heartRateStore.load();
     return PrototypePage(
       children: [
         CareHeading(
@@ -102,12 +105,22 @@ class HomeScreen extends StatelessWidget {
           subtitle: 'ul. Lipowa 12 · promień 200 m',
           onTap: () => openSafeZone(context),
         ),
-        CareLinkCard(
-          icon: Icons.favorite_outline,
-          kicker: 'Zalecenie na dziś',
-          title: 'Zmierz ciśnienie rano',
-          subtitle: 'Przed przyjęciem leków',
-          onTap: () => onOpenTab(2),
+        AnimatedBuilder(
+          animation: heartRateStore.revision,
+          builder: (context, _) {
+            final today = heartRateStore.measurementForDay(DateTime.now());
+            return CareLinkCard(
+              icon: Icons.monitor_heart_outlined,
+              kicker: 'Przypomnienie na dziś',
+              title: today == null
+                  ? 'Zmierz dzienne tętno'
+                  : 'Dzisiejsze tętno: ${today.pulse} uderzeń/min',
+              subtitle: today == null
+                  ? 'Zapisz pomiar, aby uzupełnić wykres tygodniowy.'
+                  : 'Pomiar zapisany · wróć jutro po kolejny.',
+              onTap: () => onOpenTab(2),
+            );
+          },
         ),
         const CareNotice('Podgląd dnia zawiera dane przykładowe.'),
       ],

@@ -40,6 +40,7 @@ dependencies:
   qr_flutter: ^4.1.0
   pdf: ^3.12.0
   share_plus: ^10.1.4
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +67,8 @@ flutter:
   assets:
     - assets/images/
     - assets/data/rpl_packages.json.gz
+    - assets/fonts/Roboto-Regular.ttf
+    - assets/fonts/Roboto-Medium.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

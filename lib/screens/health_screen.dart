@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:m_opiekun/services/heart_rate_store.dart';
 import 'package:m_opiekun/services/health_pdf_export.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
@@ -23,7 +24,15 @@ class _HealthScreenState extends State<HealthScreen> {
   String _conditions = 'Nadciśnienie, cukrzyca typu 2';
   String _doctor = 'dr Anna Nowak';
   String _emergencyContact = 'Jan Kowalski, syn · 500 100 200';
-  final List<_HealthReading> _readings = [];
+  final _heartRateStore = HeartRateStore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartRateStore.load().then((_) {
+      if (mounted) setState(() {});
+    });
+  }
 
   Future<void> _editPatientData() async {
     final data = await showModalBottomSheet<_PatientData>(
@@ -56,23 +65,46 @@ class _HealthScreenState extends State<HealthScreen> {
   }
 
   Future<void> _addReading() async {
-    final reading = await showModalBottomSheet<_HealthReading>(
+    await _heartRateStore.load();
+    if (_heartRateStore.hasMeasurementToday()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Dzisiejszy pomiar tętna jest już zapisany.'),
+        ),
+      );
+      return;
+    }
+    final pulse = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => const _ReadingForm(),
+      builder: (_) => const _HeartRateForm(),
     );
-    if (!mounted || reading == null) return;
-    setState(() {
-      if (reading.conditions.isNotEmpty) _conditions = reading.conditions;
-      _readings.insert(0, reading);
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Zapisano dane zdrowotne.')));
+    if (!mounted || pulse == null) return;
+    late final bool saved;
+    try {
+      saved = await _heartRateStore.addToday(pulse);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nie udało się zapisać pomiaru: $error')),
+      );
+      return;
+    }
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          saved
+              ? 'Zapisano dzienny pomiar tętna.'
+              : 'Dzisiejszy pomiar tętna jest już zapisany.',
+        ),
+      ),
+    );
   }
 
   Future<void> _exportPdf() async {
@@ -84,7 +116,7 @@ class _HealthScreenState extends State<HealthScreen> {
         conditions: _conditions,
         doctor: _doctor,
         emergencyContact: _emergencyContact,
-        readings: _readings.map(_readingText).toList(),
+        readings: _heartRateStore.measurements.map(_readingText).toList(),
       );
       final renderBox = context.findRenderObject() as RenderBox?;
       await Share.shareXFiles(
@@ -107,14 +139,8 @@ class _HealthScreenState extends State<HealthScreen> {
     }
   }
 
-  String _readingText(_HealthReading reading) {
-    final values = <String>[
-      if (reading.conditions.isNotEmpty) 'Choroba: ${reading.conditions}',
-      if (reading.pulse != null) 'Tętno: ${reading.pulse} uderzeń/min',
-      if (reading.glucose != null) 'Poziom cukru: ${reading.glucose} mg/dl',
-    ];
-    return '${_formatDate(reading.at)} · ${values.join(' · ')}';
-  }
+  String _readingText(HeartRateMeasurement reading) =>
+      '${_formatDate(reading.at)} · Tętno: ${reading.pulse} uderzeń/min';
 
   @override
   Widget build(BuildContext context) {
@@ -150,25 +176,35 @@ class _HealthScreenState extends State<HealthScreen> {
           ),
         ),
         FilledButton.icon(
-          onPressed: _addReading,
-          icon: const Icon(Icons.add),
-          label: const Text('Dodaj pomiar'),
+          onPressed: _heartRateStore.hasMeasurementToday() ? null : _addReading,
+          icon: const Icon(Icons.monitor_heart_outlined),
+          label: Text(
+            _heartRateStore.hasMeasurementToday()
+                ? 'Dzisiejsze tętno zapisane'
+                : 'Dodaj dzienny pomiar tętna',
+          ),
         ),
-        if (_readings.isNotEmpty)
+        if (_heartRateStore.measurements.isNotEmpty) ...[
           SectionCard(
-            title: 'Pomiary i wpisy zdrowotne',
+            title: 'Tętno z ostatnich 7 dni',
+            icon: Icons.show_chart,
+            child: _HeartRateChart(measurements: _heartRateStore.measurements),
+          ),
+          SectionCard(
+            title: 'Dzienne pomiary tętna',
             icon: Icons.monitor_heart_outlined,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (var i = 0; i < _readings.length; i++)
+                for (var i = 0; i < _heartRateStore.measurements.length; i++)
                   _ReadingTile(
-                    reading: _readings[i],
-                    isLast: i == _readings.length - 1,
+                    reading: _heartRateStore.measurements[i],
+                    isLast: i == _heartRateStore.measurements.length - 1,
                   ),
               ],
             ),
           ),
+        ],
         FilledButton.tonalIcon(
           onPressed: _exportPdf,
           icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -290,45 +326,28 @@ class _PatientDataFormState extends State<_PatientDataForm> {
   );
 }
 
-class _HealthReading {
-  const _HealthReading({
-    required this.conditions,
-    required this.pulse,
-    required this.glucose,
-    required this.at,
-  });
-
-  final String conditions;
-  final int? pulse;
-  final int? glucose;
-  final DateTime at;
-}
-
-class _ReadingForm extends StatefulWidget {
-  const _ReadingForm();
+class _HeartRateForm extends StatefulWidget {
+  const _HeartRateForm();
 
   @override
-  State<_ReadingForm> createState() => _ReadingFormState();
+  State<_HeartRateForm> createState() => _HeartRateFormState();
 }
 
-class _ReadingFormState extends State<_ReadingForm> {
+class _HeartRateFormState extends State<_HeartRateForm> {
   final _formKey = GlobalKey<FormState>();
-  final _conditions = TextEditingController();
   final _pulse = TextEditingController();
-  final _glucose = TextEditingController();
 
   @override
   void dispose() {
-    _conditions.dispose();
     _pulse.dispose();
-    _glucose.dispose();
     super.dispose();
   }
 
-  String? _positiveNumber(String? value, String label) {
-    if (value == null || value.trim().isEmpty) return null;
-    final number = int.tryParse(value.trim());
-    if (number == null || number <= 0) return 'Podaj poprawną wartość: $label.';
+  String? _validPulse(String? value) {
+    final number = int.tryParse(value?.trim() ?? '');
+    if (number == null || number < 30 || number > 220) {
+      return 'Podaj tętno w zakresie 30–220 uderzeń/min.';
+    }
     return null;
   }
 
@@ -344,55 +363,27 @@ class _ReadingFormState extends State<_ReadingForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Nowy wpis zdrowotny',
+              'Dzienny pomiar tętna',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Wpisz cukrzycę lub inną chorobę, tętno i poziom cukru.',
-            ),
+            const Text('Wpisz tętno spoczynkowe zmierzone dzisiaj.'),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _conditions,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Choroba (np. cukrzyca typu 2)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
             TextFormField(
               controller: _pulse,
               keyboardType: TextInputType.number,
+              autofocus: true,
               decoration: const InputDecoration(
                 labelText: 'Tętno (uderzenia/min)',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) => _positiveNumber(value, 'tętno'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _glucose,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Poziom cukru (mg/dl)',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) => _positiveNumber(value, 'poziom cukru'),
+              validator: _validPulse,
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {
                 if (!_formKey.currentState!.validate()) return;
-                Navigator.pop(
-                  context,
-                  _HealthReading(
-                    conditions: _conditions.text.trim(),
-                    pulse: int.tryParse(_pulse.text.trim()),
-                    glucose: int.tryParse(_glucose.text.trim()),
-                    at: DateTime.now(),
-                  ),
-                );
+                Navigator.pop(context, int.parse(_pulse.text.trim()));
               },
               child: const Text('Zapisz pomiar'),
             ),
@@ -405,16 +396,11 @@ class _ReadingFormState extends State<_ReadingForm> {
 
 class _ReadingTile extends StatelessWidget {
   const _ReadingTile({required this.reading, required this.isLast});
-  final _HealthReading reading;
+  final HeartRateMeasurement reading;
   final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    final values = <String>[
-      if (reading.conditions.isNotEmpty) 'Choroba: ${reading.conditions}',
-      if (reading.pulse != null) 'Tętno: ${reading.pulse} uderzeń/min',
-      if (reading.glucose != null) 'Cukier: ${reading.glucose} mg/dl',
-    ];
     final timestamp = _formatDate(reading.at);
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
@@ -424,12 +410,94 @@ class _ReadingTile extends StatelessWidget {
           Text(timestamp, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 4),
           Text(
-            values.join(' · '),
+            '${reading.pulse} uderzeń/min',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
       ),
     );
+  }
+}
+
+class _HeartRateChart extends StatelessWidget {
+  const _HeartRateChart({required this.measurements});
+
+  final List<HeartRateMeasurement> measurements;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final days = List.generate(7, (index) {
+      final date = DateTime(now.year, now.month, now.day - (6 - index));
+      return (date: date, measurement: _measurementOn(date));
+    });
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 170,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final day in days)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          day.measurement == null
+                              ? '–'
+                              : '${day.measurement!.pulse}',
+                          style: theme.textTheme.labelSmall,
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          height: day.measurement == null
+                              ? 4
+                              : (day.measurement!.pulse / 220 * 118)
+                                    .clamp(14, 118)
+                                    .toDouble(),
+                          decoration: BoxDecoration(
+                            color: day.measurement == null
+                                ? theme.colorScheme.outlineVariant
+                                : theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${day.date.day}.${day.date.month}',
+                          style: theme.textTheme.labelSmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Uderzenia na minutę · brak słupka oznacza brak pomiaru',
+          style: theme.textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  HeartRateMeasurement? _measurementOn(DateTime date) {
+    for (final measurement in measurements) {
+      if (measurement.at.year == date.year &&
+          measurement.at.month == date.month &&
+          measurement.at.day == date.day) {
+        return measurement;
+      }
+    }
+    return null;
   }
 }
 
