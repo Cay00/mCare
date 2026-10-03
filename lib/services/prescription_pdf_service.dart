@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart'
     show debugPrint, kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/services.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdfrx/pdfrx.dart';
 import '../models/prescription.dart';
@@ -71,7 +71,6 @@ class PrescriptionPdfService {
       );
     }
     PdfDocument? document;
-    TextRecognizer? recognizer;
     final pageTexts = <String>[];
     final warnings = <String>[];
     var usedOcr = false;
@@ -131,10 +130,7 @@ class PrescriptionPdfService {
               if (ocrPage != null) {
                 scanned = await ocrPage!(page);
               } else {
-                recognizer ??= TextRecognizer(
-                  script: TextRecognitionScript.latin,
-                );
-                scanned = await _ocr(page, recognizer);
+                scanned = await _ocr(page);
               }
               int quality(String value) => parsePrescription(value).items.fold(
                 0,
@@ -199,12 +195,6 @@ class PrescriptionPdfService {
         'Nie udało się wczytać PDF (etap: $stage, typ: ${error.runtimeType}). Spróbuj ponownie. Jeśli problem się powtórzy, przekaż ten komunikat do sprawdzenia.',
       );
     } finally {
-      // Cleanup must not discard an otherwise usable import or hide its error.
-      try {
-        await recognizer?.close();
-      } catch (error) {
-        _logFailure('zamykanie OCR', error);
-      }
       try {
         await document?.dispose();
       } catch (error) {
@@ -218,7 +208,7 @@ class PrescriptionPdfService {
     debugPrint('Prescription import: $stage (${error.runtimeType})');
   }
 
-  Future<String> _ocr(PdfPage page, TextRecognizer recognizer) async {
+  Future<String> _ocr(PdfPage page) async {
     final scale = 2400 / math.max(page.width, page.height);
     final rendered = await page.render(
       fullWidth: page.width * scale,
@@ -244,18 +234,15 @@ class PrescriptionPdfService {
       );
       final file = File('${directory.path}/page.png');
       await file.writeAsBytes(png.buffer.asUint8List());
-      final result = await recognizer.processImage(
-        InputImage.fromFilePath(file.path),
-      );
-      // Spatial line order, not ML Kit block order, keeps medicine + D.S. together.
-      final lines = result.blocks.expand((block) => block.lines).toList()
-        ..sort((a, b) {
-          final dy = a.boundingBox.top - b.boundingBox.top;
-          return dy.abs() < 6
-              ? a.boundingBox.left.compareTo(b.boundingBox.left)
-              : dy.compareTo(0);
-        });
-      return lines.map((line) => line.text).join('\n');
+      final text = await const MethodChannel(
+        'm_opiekun/prescription_ocr',
+      ).invokeMethod<String>('recognizeText', {'path': file.path});
+      if (text == null) {
+        throw const PrescriptionReadException(
+          'System nie zwrócił tekstu rozpoznanego na obrazie.',
+        );
+      }
+      return text;
     } finally {
       image?.dispose();
       rendered.dispose();

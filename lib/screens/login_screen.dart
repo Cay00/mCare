@@ -1,4 +1,3 @@
-import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
@@ -57,10 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xEB006B63),
-                            Color(0xEB004D47),
-                          ],
+                          colors: [Color(0xEB006B63), Color(0xEB004D47)],
                         ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(44),
@@ -126,7 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text('Szybkie logowanie', style: theme.textTheme.titleMedium),
+                    Text(
+                      'Szybkie logowanie',
+                      style: theme.textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 12),
                     for (final user in demoUsers)
                       Padding(
