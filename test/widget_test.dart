@@ -79,7 +79,7 @@ void main() {
 
     await tester.pumpWidget(OpiekunApp(auth: AuthService()));
 
-    await tester.tap(find.text('Zaloguj jako opiekun'));
+    await tester.tap(find.text('Anna Kowalska'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(NavigationDestination, 'Profil'));
     await tester.pumpAndSettle();
@@ -98,7 +98,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.logout));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Zaloguj jako chory'));
+    await tester.tap(find.text('Jakub B'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(NavigationDestination, 'Profil'));
     await tester.pumpAndSettle();
@@ -114,7 +114,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.logout));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Zaloguj jako opiekun'));
+    await tester.tap(find.text('Anna Kowalska'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(NavigationDestination, 'Profil'));
     await tester.pumpAndSettle();
