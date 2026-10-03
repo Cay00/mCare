@@ -106,20 +106,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             obscureText: true,
                           ),
                           const SizedBox(height: 16),
-                          SegmentedButton<Gender>(
-                            segments: const [
-                              ButtonSegment(
-                                value: Gender.female,
-                                label: Text('Kobieta'),
-                              ),
-                              ButtonSegment(
-                                value: Gender.male,
-                                label: Text('Mężczyzna'),
-                              ),
+                          LiquidSelectField<Gender>(
+                            label: 'Płeć',
+                            value: _gender,
+                            options: const [
+                              Gender.female,
+                              Gender.male,
+                              Gender.other,
                             ],
-                            selected: {_gender},
-                            onSelectionChanged: (selection) =>
-                                setState(() => _gender = selection.first),
+                            optionLabel: genderLabel,
+                            onChanged: (gender) =>
+                                setState(() => _gender = gender),
                           ),
                           const SizedBox(height: 16),
                           Row(

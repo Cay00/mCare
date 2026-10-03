@@ -209,3 +209,180 @@ class LiquidBackground extends StatelessWidget {
     );
   }
 }
+
+class LiquidSelectField<T> extends StatelessWidget {
+  final String label;
+  final T value;
+  final List<T> options;
+  final String Function(T) optionLabel;
+  final ValueChanged<T> onChanged;
+
+  const LiquidSelectField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.optionLabel,
+    required this.onChanged,
+  });
+
+  Future<void> _openPicker(BuildContext context) async {
+    final selected = await showModalBottomSheet<T>(
+      context: context,
+      backgroundColor: LiquidColors.bg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: LiquidColors.muted.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: LiquidColors.ink,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                for (final option in options)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Material(
+                      color: option == value
+                          ? LiquidColors.mint.withValues(alpha: 0.45)
+                          : Colors.white.withValues(alpha: 0.7),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(22),
+                        topRight: Radius.circular(8),
+                        bottomRight: Radius.circular(22),
+                        bottomLeft: Radius.circular(8),
+                      ),
+                      child: InkWell(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(22),
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(22),
+                          bottomLeft: Radius.circular(8),
+                        ),
+                        onTap: () => Navigator.of(sheetContext).pop(option),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  optionLabel(option),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: LiquidColors.ink,
+                                  ),
+                                ),
+                              ),
+                              if (option == value)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: LiquidColors.teal,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (selected != null) onChanged(selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: LiquidColors.ink,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Material(
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(22),
+            topRight: Radius.circular(8),
+            bottomRight: Radius.circular(22),
+            bottomLeft: Radius.circular(8),
+          ),
+          child: InkWell(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(22),
+              topRight: Radius.circular(8),
+              bottomRight: Radius.circular(22),
+              bottomLeft: Radius.circular(8),
+            ),
+            onTap: () => _openPicker(context),
+            child: Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(22),
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(22),
+                  bottomLeft: Radius.circular(8),
+                ),
+                border: Border.all(color: LiquidColors.line, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      optionLabel(value),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: LiquidColors.ink,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: LiquidColors.muted,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

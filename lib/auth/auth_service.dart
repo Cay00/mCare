@@ -23,11 +23,15 @@ String? userIdFromScan(String raw) {
   return value;
 }
 
-enum Gender { female, male }
+enum Gender { female, male, other }
 
 String roleLabel(UserRole role) => role == UserRole.patient ? 'Użytkownik' : 'Opiekun';
 
-String genderLabel(Gender gender) => gender == Gender.female ? 'Kobieta' : 'Mężczyzna';
+String genderLabel(Gender gender) => switch (gender) {
+  Gender.female => 'Kobieta',
+  Gender.male => 'Mężczyzna',
+  Gender.other => 'Inne',
+};
 
 class AppUser {
   final String id;
