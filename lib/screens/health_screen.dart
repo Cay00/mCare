@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:m_opiekun/services/health_pdf_export.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
@@ -86,9 +86,18 @@ class _HealthScreenState extends State<HealthScreen> {
         emergencyContact: _emergencyContact,
         readings: _readings.map(_readingText).toList(),
       );
-      await Printing.sharePdf(
-        bytes: Uint8List.fromList(bytes),
-        filename: 'karta_medyczna.pdf',
+      final renderBox = context.findRenderObject() as RenderBox?;
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            Uint8List.fromList(bytes),
+            mimeType: 'application/pdf',
+          ),
+        ],
+        fileNameOverrides: const ['karta_medyczna.pdf'],
+        sharePositionOrigin: renderBox == null
+            ? null
+            : renderBox.localToGlobal(Offset.zero) & renderBox.size,
       );
     } catch (error) {
       if (!mounted) return;
