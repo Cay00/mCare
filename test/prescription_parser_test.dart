@@ -13,7 +13,7 @@ void main() {
       expect(recognizePrescriptionDosing('1-0-2')?.amounts, ['1', '2']);
       expect(recognizePrescriptionDosing('2 × 1/2')?.amounts, ['1/2', '1/2']);
       for (final text in [
-        '2x1 co drugi dzień',
+        '2x1 doraźnie co drugi dzień',
         'doraźnie 1x1',
         '0x1',
         '2x1/0',
@@ -21,6 +21,21 @@ void main() {
       ]) {
         expect(recognizePrescriptionDosing(text), isNull);
       }
+      for (final suffix in ['co drugi dzień', 'co dwa dni', 'co 2 dni']) {
+        final dosing = recognizePrescriptionDosing('D.S. 2x1 tabl. $suffix');
+        expect(dosing?.dailyCount, 2);
+        expect(dosing?.everyDays, 2);
+      }
+      expect(recognizePrescriptionDosing('1-0-1 co 3 dni')?.everyDays, 3);
+      expect(
+        recognizePrescriptionDosing('1 tabletka co dwa dni')?.dailyCount,
+        1,
+      );
+      expect(
+        recognizePrescriptionDosing('1 tabletka co dwa dni')?.everyDays,
+        2,
+      );
+      expect(recognizePrescriptionDosing('1x1 co 0 dni'), isNull);
     },
   );
   test('barcode and OID text cannot become medication names', () {

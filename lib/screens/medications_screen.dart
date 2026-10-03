@@ -78,6 +78,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
               time: doseTimeLabel(minute),
               name: medication.product.displayName,
               product: medication.product,
+              schedule: medication,
               instruction: medication.instruction.isEmpty
                   ? 'Dawkowanie do uzupełnienia'
                   : 'Dawkowanie: ${medication.instruction}',
@@ -197,7 +198,9 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         label: const Text('Wczytaj receptę'),
       ),
       const CareHeading('Dawki na dziś'),
-      ..._dosesToday.map(_buildDoseCard),
+      ..._dosesToday
+          .where((dose) => dose.schedule?.isScheduledOn(DateTime.now()) ?? true)
+          .map(_buildDoseCard),
       _buildPermanentMedsCard(),
     ],
   );

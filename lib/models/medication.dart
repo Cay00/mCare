@@ -52,6 +52,8 @@ class MedicationStock {
     this.ownedPackages,
     this.looseUnits,
     this.doseMinutes = const [],
+    this.everyDays = 1,
+    this.scheduleStart,
   });
 
   final MedicationProduct product;
@@ -60,8 +62,21 @@ class MedicationStock {
   final int? ownedPackages;
   final double? looseUnits;
 
-  /// User-confirmed clock times for a repeating daily plan; empty = no plan.
+  /// User-confirmed clock times on each scheduled day; empty = no plan.
   final List<int> doseMinutes;
+  final int everyDays;
+  final DateTime? scheduleStart;
+
+  bool isScheduledOn(DateTime date) {
+    if (doseMinutes.isEmpty) return false;
+    final start = scheduleStart ?? date;
+    final elapsed = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
+    return elapsed >= 0 && everyDays > 0 && elapsed % everyDays == 0;
+  }
 
   double? get totalUnits {
     if (ownedPackages == null && looseUnits == null) return null;
@@ -81,6 +96,7 @@ class MedicationDose {
     required this.instruction,
     this.product,
     this.isTaken = false,
+    this.schedule,
   });
 
   final String id;
@@ -89,4 +105,5 @@ class MedicationDose {
   final String instruction;
   final MedicationProduct? product;
   bool isTaken;
+  final MedicationStock? schedule;
 }

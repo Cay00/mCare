@@ -1,19 +1,17 @@
 /// Recognises notation, not an independently chosen treatment or clock times.
 class PrescriptionDosing {
-  const PrescriptionDosing(this.amounts, this.periods);
+  const PrescriptionDosing(this.amounts, this.periods, {this.everyDays = 1});
+  final int everyDays;
   final List<String> amounts;
   final List<String> periods;
   int get dailyCount => amounts.length;
-  String get description => periods.isEmpty
-      ? '$dailyCount razy dziennie, po ${amounts.first} (jednostka według recepty)'
-      : List.generate(
-          amounts.length,
-          (i) => '${periods[i]}: ${amounts[i]}',
-        ).join(', ');
+  String get description =>
+      '${everyDays == 1 ? 'Codziennie' : 'Co $everyDays dni'}: ${periods.isEmpty ? '$dailyCount przyjęć, po ${amounts.first} (jednostka według recepty)' : List.generate(amounts.length, (i) => '${periods[i]}: ${amounts[i]}').join(', ')}';
 }
 
 PrescriptionDosing? recognizePrescriptionDosing(String source) {
-  final text = source
+  var text = source
+      .toLowerCase()
       .trim()
       .replaceFirst(
         RegExp(r'^D\s*\.?\s*S\s*\.?\s*:?\s*', caseSensitive: false),
@@ -23,6 +21,25 @@ PrescriptionDosing? recognizePrescriptionDosing(String source) {
       .replaceAll('×', 'x')
       .replaceAll('–', '-')
       .replaceAll('−', '-');
+  var everyDays = 1;
+  final interval = RegExp(
+    r'\s+co\s+(drugi dzień|dwa dni|trzy dni|\d+ dni)\s*$',
+  ).firstMatch(text);
+  if (interval != null) {
+    final value = interval[1]!;
+    everyDays = switch (value) {
+      'drugi dzień' || 'dwa dni' => 2,
+      'trzy dni' => 3,
+      _ => int.tryParse(value.split(' ').first) ?? 0,
+    };
+    if (everyDays < 1 || everyDays > 365) return null;
+    text = text.substring(0, interval.start).trim();
+  }
+  final unitPattern = RegExp(
+    r'\s+(tabl\.?|tabletka|tabletki|tabletek|kaps\.?|kapsułka|kapsułki|ml|dawka|dawki)$',
+  );
+  final explicitUnit = unitPattern.hasMatch(text);
+  text = text.replaceFirst(unitPattern, '');
   const amount = r'(?:\d+(?:[.,]\d+)?|\d+\s*/\s*\d+)';
   final times = RegExp('^(\\d{1,2})\\s*[xX*]\\s*($amount)\$').firstMatch(text);
   bool positive(String value) {
@@ -33,10 +50,21 @@ PrescriptionDosing? recognizePrescriptionDosing(String source) {
         (parts.length == 1 || (double.tryParse(parts.last) ?? 0) > 0);
   }
 
+  if (interval != null &&
+      explicitUnit &&
+      RegExp('^$amount\$').hasMatch(text) &&
+      positive(text)) {
+    return PrescriptionDosing([text], const [], everyDays: everyDays);
+  }
+
   if (times != null) {
     final count = int.parse(times[1]!);
     if (count >= 1 && count <= 24 && positive(times[2]!)) {
-      return PrescriptionDosing(List.filled(count, times[2]!), const []);
+      return PrescriptionDosing(
+        List.filled(count, times[2]!),
+        const [],
+        everyDays: everyDays,
+      );
     }
   }
   final slots = RegExp(
@@ -54,5 +82,7 @@ PrescriptionDosing? recognizePrescriptionDosing(String source) {
       return null;
     }
   }
-  return amounts.isEmpty ? null : PrescriptionDosing(amounts, periods);
+  return amounts.isEmpty
+      ? null
+      : PrescriptionDosing(amounts, periods, everyDays: everyDays);
 }
