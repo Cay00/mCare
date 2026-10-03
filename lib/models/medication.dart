@@ -51,6 +51,7 @@ class MedicationStock {
     required this.instruction,
     this.ownedPackages,
     this.looseUnits,
+    this.doseMinutes = const [],
   });
 
   final MedicationProduct product;
@@ -58,6 +59,9 @@ class MedicationStock {
   final String instruction;
   final int? ownedPackages;
   final double? looseUnits;
+
+  /// User-confirmed clock times for a repeating daily plan; empty = no plan.
+  final List<int> doseMinutes;
 
   double? get totalUnits {
     if (ownedPackages == null && looseUnits == null) return null;

@@ -7,11 +7,20 @@ import '../widgets/prototype_page.dart';
 import '../widgets/section_card.dart';
 import '../widgets/status_pill.dart';
 import '../theme/app_theme.dart';
+import 'prescription_import_screen.dart';
+import '../services/dose_schedule.dart';
+import '../models/prescription.dart';
 
 class MedicationsScreen extends StatefulWidget {
-  const MedicationsScreen({super.key, this.scanMedication});
+  const MedicationsScreen({
+    super.key,
+    this.scanMedication,
+    this.readPrescription,
+  });
 
   final Future<MedicationProduct?> Function(BuildContext)? scanMedication;
+  final Future<PrescriptionImport?> Function(void Function(String))?
+  readPrescription;
 
   @override
   State<MedicationsScreen> createState() => _MedicationsScreenState();
@@ -20,6 +29,7 @@ class MedicationsScreen extends StatefulWidget {
 class _MedicationsScreenState extends State<MedicationsScreen> {
   final List<MedicationStock> _medications = [];
   bool _addingMedication = false;
+  int _nextDoseId = 5;
   final List<MedicationDose> _dosesToday = [
     MedicationDose(
       id: '1',
@@ -55,6 +65,49 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
     setState(() {
       dose.isTaken = !dose.isTaken;
     });
+  }
+
+  void _addMedications(List<MedicationStock> medications) {
+    setState(() {
+      _medications.addAll(medications);
+      for (final medication in medications) {
+        for (final minute in medication.doseMinutes) {
+          _dosesToday.add(
+            MedicationDose(
+              id: '${_nextDoseId++}',
+              time: doseTimeLabel(minute),
+              name: medication.product.displayName,
+              product: medication.product,
+              instruction: medication.instruction.isEmpty
+                  ? 'Dawkowanie do uzupełnienia'
+                  : 'Dawkowanie: ${medication.instruction}',
+            ),
+          );
+        }
+      }
+      _dosesToday.sort((a, b) => a.time.compareTo(b.time));
+    });
+  }
+
+  Future<void> _importPrescription() async {
+    if (_addingMedication) return;
+    _addingMedication = true;
+    try {
+      final items = await Navigator.of(context).push<List<MedicationStock>>(
+        MaterialPageRoute(
+          builder: (_) => PrescriptionImportScreen(
+            readPrescription: widget.readPrescription,
+          ),
+        ),
+      );
+      if (!mounted || items == null || items.isEmpty) return;
+      _addMedications(items);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Dodano leki z recepty: ${items.length}.')),
+      );
+    } finally {
+      _addingMedication = false;
+    }
   }
 
   Future<void> _openAddMedicationModal() async {
@@ -114,7 +167,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       }
       final medication = await showMedicationForm(context, product: product);
       if (!mounted || medication == null) return;
-      setState(() => _medications.add(medication));
+      _addMedications([medication]);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Dodano lek: ${medication.product.displayName}'),
@@ -136,6 +189,12 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         onPressed: _openAddMedicationModal,
         icon: const Icon(Icons.add),
         label: const Text('Dodaj lek'),
+      ),
+      OutlinedButton.icon(
+        key: const Key('importPrescription'),
+        onPressed: _importPrescription,
+        icon: const Icon(Icons.upload_file),
+        label: const Text('Wczytaj receptę'),
       ),
       const CareHeading('Dawki na dziś'),
       ..._dosesToday.map(_buildDoseCard),

@@ -2,10 +2,15 @@ import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import '../models/medication.dart';
+import '../services/prescription_dosing.dart';
+import 'dose_schedule_editor.dart';
 
 Future<MedicationStock?> showMedicationForm(
   BuildContext context, {
   MedicationProduct? product,
+  MedicationStock? initialStock,
+  String? prescriptionSource,
+  int? prescribedPackages,
 }) => showModalBottomSheet<MedicationStock>(
   context: context,
   isScrollControlled: true,
@@ -13,12 +18,26 @@ Future<MedicationStock?> showMedicationForm(
   shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
   ),
-  builder: (_) => MedicationForm(product: product),
+  builder: (_) => MedicationForm(
+    product: product,
+    initialStock: initialStock,
+    prescriptionSource: prescriptionSource,
+    prescribedPackages: prescribedPackages,
+  ),
 );
 
 class MedicationForm extends StatefulWidget {
-  const MedicationForm({this.product, super.key});
+  const MedicationForm({
+    this.product,
+    this.initialStock,
+    this.prescriptionSource,
+    this.prescribedPackages,
+    super.key,
+  });
   final MedicationProduct? product;
+  final MedicationStock? initialStock;
+  final String? prescriptionSource;
+  final int? prescribedPackages;
 
   @override
   State<MedicationForm> createState() => _MedicationFormState();
@@ -26,23 +45,35 @@ class MedicationForm extends StatefulWidget {
 
 class _MedicationFormState extends State<MedicationForm> {
   final _form = GlobalKey<FormState>();
-  late final _name = TextEditingController(text: widget.product?.name);
-  late final _strength = TextEditingController(text: widget.product?.strength);
+  bool _saving = false;
+  MedicationProduct? get _initialProduct =>
+      widget.initialStock?.product ?? widget.product;
+  late List<int> _doseMinutes = List.of(widget.initialStock?.doseMinutes ?? []);
+  late final _name = TextEditingController(text: _initialProduct?.name);
+  late final _strength = TextEditingController(text: _initialProduct?.strength);
   late final _shape = TextEditingController(
-    text: widget.product?.pharmaceuticalForm,
+    text: _initialProduct?.pharmaceuticalForm,
   );
   late final _description = TextEditingController(
-    text: widget.product?.packageDescription,
+    text: _initialProduct?.packageDescription,
   );
   late final _quantity = TextEditingController(
-    text: widget.product?.packageQuantity == null
+    text: _initialProduct?.packageQuantity == null
         ? ''
-        : formatQuantity(widget.product!.packageQuantity!),
+        : formatQuantity(_initialProduct!.packageQuantity!),
   );
-  late final _unit = TextEditingController(text: widget.product?.packageUnit);
-  final _instruction = TextEditingController();
-  final _packages = TextEditingController();
-  final _looseUnits = TextEditingController();
+  late final _unit = TextEditingController(text: _initialProduct?.packageUnit);
+  late final _instruction = TextEditingController(
+    text: widget.initialStock?.instruction,
+  );
+  late final _packages = TextEditingController(
+    text: widget.initialStock?.ownedPackages?.toString(),
+  );
+  late final _looseUnits = TextEditingController(
+    text: widget.initialStock?.looseUnits == null
+        ? ''
+        : formatQuantity(widget.initialStock!.looseUnits!),
+  );
 
   double? _number(String value) =>
       double.tryParse(value.trim().replaceAll(',', '.'));
@@ -69,7 +100,9 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   void _save() {
+    if (_saving) return;
     if (!_form.currentState!.validate()) return;
+    setState(() => _saving = true);
     final product = MedicationProduct(
       name: _name.text.trim(),
       strength: _strength.text.trim(),
@@ -77,7 +110,7 @@ class _MedicationFormState extends State<MedicationForm> {
       packageDescription: _description.text.trim(),
       packageQuantity: _number(_quantity.text),
       packageUnit: _unit.text.trim().isEmpty ? null : _unit.text.trim(),
-      gtin: widget.product?.gtin,
+      gtin: _initialProduct?.gtin,
     );
     Navigator.of(context).pop(
       MedicationStock(
@@ -85,6 +118,7 @@ class _MedicationFormState extends State<MedicationForm> {
         instruction: _instruction.text.trim(),
         ownedPackages: _number(_packages.text)?.toInt(),
         looseUnits: _number(_looseUnits.text),
+        doseMinutes: List.unmodifiable(_doseMinutes),
       ),
     );
   }
@@ -121,10 +155,34 @@ class _MedicationFormState extends State<MedicationForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                scanned ? 'Rozpoznano lek' : 'Dodaj nowy lek',
+                widget.prescriptionSource != null
+                    ? 'Sprawdź lek z recepty'
+                    : scanned
+                    ? 'Rozpoznano lek'
+                    : 'Dodaj nowy lek',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
+              if (widget.prescriptionSource != null) ...[
+                const CareNotice(
+                  'Porównaj nazwę i dawkowanie z PDF. Odczyt, zwłaszcza ze skanu, może zawierać błędy.',
+                ),
+                const SizedBox(height: 12),
+                ExpansionTile(
+                  title: const Text('Odczytany fragment recepty'),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SelectableText(widget.prescriptionSource!),
+                    ),
+                  ],
+                ),
+                if (widget.prescribedPackages != null)
+                  Text(
+                    'Przepisane opakowania: ${widget.prescribedPackages}. Posiadany zapas wpisz osobno.',
+                  ),
+                const SizedBox(height: 20),
+              ],
               _field(
                 'Nazwa leku',
                 _name,
@@ -183,6 +241,34 @@ class _MedicationFormState extends State<MedicationForm> {
                 maxLines: 2,
                 hint: 'Wpisz zalecenie — możesz uzupełnić później',
               ),
+              FormField<List<int>>(
+                initialValue: _doseMinutes,
+                validator: (times) =>
+                    times != null && times.toSet().length != times.length
+                    ? 'Godziny dawek nie mogą się powtarzać.'
+                    : null,
+                builder: (state) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _instruction,
+                      builder: (context, value, child) => DoseScheduleEditor(
+                        recognizedDosing: recognizePrescriptionDosing(
+                          value.text,
+                        ),
+                        initialMinutes: _doseMinutes,
+                        onChanged: (times) {
+                          _doseMinutes = times;
+                          state.didChange(times);
+                        },
+                      ),
+                    ),
+                    if (state.hasError)
+                      CareNotice(state.errorText!, error: true),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               _field(
                 'Posiadane pełne opakowania',
                 _packages,
@@ -200,7 +286,32 @@ class _MedicationFormState extends State<MedicationForm> {
                 'wpisz w tej samej jednostce co ilość w opakowaniu.',
               ),
               const SizedBox(height: 16),
-              FilledButton(onPressed: _save, child: const Text('Zapisz lek')),
+              if (widget.prescriptionSource != null)
+                FormField<bool>(
+                  initialValue: false,
+                  validator: (value) => value == true
+                      ? null
+                      : 'Sprawdź dane leku i zaznacz potwierdzenie.',
+                  builder: (state) => Column(
+                    children: [
+                      CheckboxListTile(
+                        key: const Key('confirmPrescription'),
+                        value: state.value ?? false,
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text(
+                          'Sprawdziłem nazwę, dawkowanie i godziny z zaleceniem',
+                        ),
+                        onChanged: state.didChange,
+                      ),
+                      if (state.hasError)
+                        CareNotice(state.errorText!, error: true),
+                    ],
+                  ),
+                ),
+              FilledButton(
+                onPressed: _saving ? null : _save,
+                child: const Text('Zapisz lek'),
+              ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Anuluj'),
