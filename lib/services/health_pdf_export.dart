@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -13,11 +14,18 @@ class HealthPdfExport {
     required String emergencyContact,
     required List<String> readings,
   }) async {
+    final regularFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Regular.ttf'),
+    );
+    final boldFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Medium.ttf'),
+    );
     final document = pw.Document();
     document.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(36),
+        theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
         build: (context) => [
           pw.Text(
             'Karta medyczna pacjenta',
