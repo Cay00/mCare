@@ -1,5 +1,8 @@
 package com.example.m_opiekun
 
+import android.net.Uri
+import java.io.File
+
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -28,7 +31,7 @@ class MainActivity : FlutterActivity() {
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             try {
-                recognizer.process(InputImage.fromFilePath(this, path))
+                recognizer.process(InputImage.fromFilePath(this, Uri.fromFile(File(path))))
                     .addOnSuccessListener { visionText -> result.success(visionText.text) }
                     .addOnFailureListener {
                         result.error("ocr_failed", "Nie udało się rozpoznać tekstu na obrazie.", null)

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -90,8 +91,10 @@ void main() {
         find.text('Zastosuj schemat z recepty: 3 przyjęć'),
       );
       await visibleTap(tester, find.byKey(const ValueKey('dose-time-0')));
-      await tester.enterText(find.byKey(const ValueKey('dose-hour')), '09');
-      await tester.enterText(find.byKey(const ValueKey('dose-minute')), '30');
+      await tapDial(tester, 9, inner: false);
+      await tester.pumpAndSettle();
+      await tapDial(tester, 6, inner: false);
+      await tester.pumpAndSettle();
       await visibleTap(tester, find.text('Ustaw'));
       expect(find.text('Dawka 2: wybierz godzinę'), findsOneWidget);
       await visibleTap(tester, find.text('Zapisz lek'));
@@ -101,11 +104,10 @@ void main() {
       );
       for (var i = 1; i < 3; i++) {
         await visibleTap(tester, find.byKey(ValueKey('dose-time-$i')));
-        await tester.enterText(
-          find.byKey(const ValueKey('dose-hour')),
-          i == 1 ? '15' : '21',
-        );
-        await tester.enterText(find.byKey(const ValueKey('dose-minute')), '00');
+        await tapDial(tester, i == 1 ? 3 : 9, inner: true);
+        await tester.pumpAndSettle();
+        await tapDial(tester, 0);
+        await tester.pumpAndSettle();
         await visibleTap(tester, find.text('Ustaw'));
       }
       await visibleTap(tester, find.text('Zapisz lek'));
@@ -159,4 +161,21 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     }
   });
+}
+
+Future<void> tapDial(
+  WidgetTester tester,
+  int position, {
+  bool inner = false,
+}) async {
+  final dial = find.descendant(
+    of: find.byWidgetPredicate((w) => '${w.runtimeType}' == '_Dial'),
+    matching: find.byType(CustomPaint),
+  );
+  final center = tester.getCenter(dial);
+  final radius = tester.getSize(dial).shortestSide / 2 - 24 - (inner ? 28 : 0);
+  final angle = position * math.pi / 6;
+  await tester.tapAt(
+    center + Offset(math.sin(angle) * radius, -math.cos(angle) * radius),
+  );
 }

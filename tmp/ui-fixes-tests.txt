@@ -1,0 +1,85 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart
+00:00 +0: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: EAN-13 and zero-padded GTIN-14 identify the same package
+00:00 +1: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: rejects bad checksum, truncated, overlong and non-numeric codes
+00:00 +2: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: GS1 AI 01 with expiry, lot, serial and symbology prefix
+00:00 +3: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: does not search inside serial/lot or accept malformed AI 01
+00:00 +4: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +5: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +6: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +7: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +8: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +9: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +10: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +11: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +12: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +13: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +14: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +15: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +16: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +17: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:01 +18: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:01 +19: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:01 +20: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:01 +21: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:01 +22: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:02 +23: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:02 +24: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:03 +25: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:03 +26: C:/Users/kacpe/Documents/GitHub/mCare/test/widget_test.dart: opiekun dostaje dane dopiero po zgodzie chorego
+00:03 +27: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: large-text
+00:04 +28: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: landscape
+00:05 +29: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: tablet
+00:05 +30: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: large text navigation retains all five destinations and dose toggle
+
+Warning: A call to tap() with finder "Found 1 widget with text "Potwierdź przyjęcie" (ignoring all but first): [
+  Text("Potwierdź przyjęcie", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery, _ScrollableScope]),
+]" derived an Offset (Offset(171.0, 544.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#71dc3 relayoutBoundary=up28
+The hit test result at that offset is: HitTestResult(RenderPointerListener#085f3@Offset(60.3, 8.0), RenderSemanticsAnnotations#ffbe1@Offset(60.3, 8.0), RenderMouseRegion#04a92@Offset(60.3, 8.0), RenderSemanticsAnnotations#c066a@Offset(60.3, 8.0), _RenderInkFeatures#5014c@Offset(60.3, 8.0), RenderCustomPaint#58689@Offset(60.3, 8.0), RenderPhysicalShape#3a4d9@Offset(60.3, 8.0), RenderConstrainedBox#4a5d8@Offset(60.3, 8.0), _RenderInputPadding#8d0bc@Offset(60.3, 8.0), RenderSemanticsAnnotations#9b1c7@Offset(60.3, 8.0), RenderSemanticsAnnotations#00801@Offset(60.3, 8.0), RenderConstrainedBox#9e967@Offset(60.3, 8.0), RenderWrap#76e3d@Offset(163.0, 8.0), _RenderLayoutBuilder#499c2@Offset(163.0, 8.0), RenderPadding#cdf64@Offset(171.0, 16.0), RenderPadding#bb0db@Offset(171.0, 16.0), _RenderInkFeatures#f683c@Offset(171.0, 16.0), RenderPhysicalModel#c5d13@Offset(171.0, 16.0), RenderCustomMultiChildLayoutBox#7711b@Offset(171.0, 544.0), _RenderInkFeatures#71c5f@Offset(171.0, 544.0), RenderPhysicalModel#23c13@Offset(171.0, 544.0), RenderSemanticsAnnotations#a746e@Offset(171.0, 544.0), RenderRepaintBoundary#c13b8@Offset(171.0, 544.0), RenderIgnorePointer#8f4d7@Offset(171.0, 544.0), RenderAnimatedOpacity#f9e4c@Offset(171.0, 544.0), RenderAnimatedOpacity#a2c3c@Offset(171.0, 544.0), _RenderColoredBox#b606e@Offset(171.0, 544.0), RenderAnimatedOpacity#d5e74@Offset(171.0, 544.0), RenderIgnorePointer#182bb@Offset(171.0, 544.0), RenderAnimatedOpacity#49f1c@Offset(171.0, 544.0), RenderRepaintBoundary#5589e@Offset(171.0, 544.0), RenderSemanticsAnnotations#b3ea6@Offset(171.0, 544.0), RenderOffstage#c2a6b@Offset(171.0, 544.0), RenderSemanticsAnnotations#82244@Offset(171.0, 544.0), _RenderTheater#959d5@Offset(171.0, 544.0), RenderAbsorbPointer#611a1@Offset(171.0, 544.0), RenderPointerListener#4ef28@Offset(171.0, 544.0), RenderSemanticsAnnotations#1fae1@Offset(171.0, 544.0), RenderCustomPaint#27d5a@Offset(171.0, 544.0), RenderSemanticsAnnotations#8d4aa@Offset(171.0, 544.0), RenderSemanticsAnnotations#aa72a@Offset(171.0, 544.0), RenderSemanticsAnnotations#8b8f6@Offset(171.0, 544.0), RenderTapRegionSurface#e03aa@Offset(171.0, 544.0), RenderSemanticsAnnotations#84ccf@Offset(171.0, 544.0), RenderSemanticsAnnotations#e9c11@Offset(171.0, 544.0), HitTestEntry<HitTestTarget>#0dac5(_ReusableRenderView#bfaf5), HitTestEntry<HitTestTarget>#8d7e4(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart:202:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#6      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _WidgetPredicateWidgetFinder:<Found 0 widgets with widget matching predicate: []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart:204:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart line 204
+The test description was:
+  large text navigation retains all five destinations and dose toggle
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +30 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: large text navigation retains all five destinations and dose toggle [E]
+  Test failed. See exception logs above.
+  The test description was: large text navigation retains all five destinations and dose toggle
+  
+00:06 +30 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: form labels are exposed to assistive technology
+00:06 +31 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: shell controls have usable touch targets and labels
+00:07 +32 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: (tearDownAll)
+00:07 +32 -1: Some tests failed.
+
+Failing tests:
+  C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: large text navigation retains all five destinations and dose toggle

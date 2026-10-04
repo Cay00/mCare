@@ -1,0 +1,4 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart
+00:00 +0: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +1: cancel selection and unreadable document never enable import
+00:02 +2: All tests passed!

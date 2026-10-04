@@ -1,0 +1,16 @@
+from pathlib import Path
+p=Path('test/widget_test.dart');s=p.read_text(encoding='utf-8')
+for label in ['Zaloguj się','Zaloguj jako opiekun','Zaloguj jako chory','Zmień hasło']:
+ s=s.replace(f"    await tester.tap(find.text('{label}'));",f"    await tester.ensureVisible(find.text('{label}'));\n    await tester.tap(find.text('{label}'));")
+s=s.replace("    await tester.drag(find.text('Porady'), const Offset(0, -700));", "    await tester.scrollUntilVisible(find.text('dr Anna Nowak'), 300);")
+s=s.replace("    await tester.ensureVisible(find.byKey(const Key('openSafeZone')));", "    await _scrollProfileTo(tester, find.byKey(const Key('openSafeZone')));")
+s=s.replace("    await tester.ensureVisible(find.byKey(const Key('connectPatient')));", "    await _scrollProfileTo(tester, find.byKey(const Key('connectPatient')));")
+s=s.replace("    expect(find.text('Zapisz hasło'), findsOneWidget);", "    await tester.scrollUntilVisible(find.text('Zapisz hasło'), 300);\n    expect(find.text('Zapisz hasło'), findsOneWidget);")
+s=s.replace("    expect(find.textContaining('Czekamy, aż Jakub B'), findsOneWidget);", "    await _scrollProfileTo(tester, find.textContaining('Czekamy, aż Jakub B'));\n    expect(find.textContaining('Czekamy, aż Jakub B'), findsOneWidget);")
+s=s.replace("    expect(find.text('Widzi: Leki, Zdrowie, Wizyty'), findsOneWidget);", "    await _scrollProfileTo(tester, find.text('Widzi: Leki, Zdrowie, Wizyty'));\n    expect(find.text('Widzi: Leki, Zdrowie, Wizyty'), findsOneWidget);")
+s=s.replace("    expect(find.text('A Rh+'), findsOneWidget);", "    await tester.scrollUntilVisible(find.text('A Rh+'), 300);\n    expect(find.text('A Rh+'), findsOneWidget);")
+p.write_text(s,encoding='utf-8')
+p=Path('test/medication_form_test.dart'); s=p.read_text(encoding='utf-8')
+s=s.replace("      expect(find.text('Lek testowy 5 mg'), findsOneWidget);", "      await tester.scrollUntilVisible(find.text('Lek testowy 5 mg'), 400);\n      expect(find.text('Lek testowy 5 mg'), findsOneWidget);")
+p.write_text(s,encoding='utf-8')
+p=Path('test/medication_scanner_test.dart');s=p.read_text(encoding='utf-8');s=s.replace("    await tester.tap(find.text('Skanuj ponownie'));", "    await tester.ensureVisible(find.text('Skanuj ponownie'));\n    await tester.tap(find.text('Skanuj ponownie'));");p.write_text(s,encoding='utf-8')

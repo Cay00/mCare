@@ -1,0 +1,40 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart
+00:00 +0: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: patient/access identifiers are excluded; package count is not stock
+00:00 +1: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: separate blocks keep distinct D.S. and flag incomplete screenshot layout
+00:00 +2: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: multiline dosing is copied without interpreting fractions or timing
+00:00 +3: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: no headings means no guesses; missing dosing remains empty
+00:00 +4: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: numeric dosing on its own line is preserved, not mistaken for an identifier
+00:00 +5: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: equal daily times, midnight wrap and fractional interval rounding
+00:00 +6: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_pdf_test.dart: (setUpAll)
+00:00 +6: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_pdf_test.dart: real PDF text extraction preserves separate prescriptions across pages
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+00:00 +7: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +8: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +8: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_pdf_test.dart: page limit is enforced before extraction
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+00:00 +9: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +10: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +11: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +12: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:00 +13: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +14: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +15: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +16: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +17: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +18: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +19: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +20: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +21: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +22: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +23: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +24: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +25: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +26: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +27: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +28: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +29: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +30: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +31: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +32: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:03 +33: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: cancel selection and unreadable document never enable import
+00:03 +34: All tests passed!

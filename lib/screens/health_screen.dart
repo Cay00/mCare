@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:file_saver/file_saver.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:m_opiekun/services/health_pdf_export.dart';
@@ -21,6 +23,7 @@ class HealthScreen extends StatefulWidget {
 }
 
 class _HealthScreenState extends State<HealthScreen> {
+  bool _exporting = false;
   String _name = 'Maria Kowalska';
   String _bloodType = 'A Rh+';
   String _allergies = 'Penicylina';
@@ -67,7 +70,9 @@ class _HealthScreenState extends State<HealthScreen> {
     });
   }
 
-  Future<void> _exportPdf() async {
+  Future<void> _exportPdf({bool share = false}) async {
+    if (_exporting) return;
+    setState(() => _exporting = true);
     try {
       final bytes = await HealthPdfExport.build(
         name: _name,
@@ -78,6 +83,26 @@ class _HealthScreenState extends State<HealthScreen> {
         emergencyContact: _emergencyContact,
         readings: _vitalStore.readings.map(_vitalText).toList(),
       );
+      if (!mounted) return;
+      if (!share) {
+        final path = await FileSaver.instance.saveAs(
+          name: 'karta_medyczna',
+          bytes: Uint8List.fromList(bytes),
+          fileExtension: 'pdf',
+          mimeType: MimeType.pdf,
+        );
+        if (!mounted || path == null) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              kIsWeb
+                  ? 'Przekazano PDF do pobrania w przeglądarce.'
+                  : 'Zapisano PDF w wybranym miejscu.',
+            ),
+          ),
+        );
+        return;
+      }
       final renderBox = context.findRenderObject() as RenderBox?;
       await Share.shareXFiles(
         [
@@ -94,8 +119,16 @@ class _HealthScreenState extends State<HealthScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nie udało się przygotować PDF: $error')),
+        SnackBar(
+          content: Text(
+            share
+                ? 'Nie udało się udostępnić PDF. Spróbuj ponownie.'
+                : 'Nie udało się zapisać PDF. Spróbuj ponownie lub wybierz inne miejsce.',
+          ),
+        ),
       );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
     }
   }
 
@@ -152,9 +185,14 @@ class _HealthScreenState extends State<HealthScreen> {
             ],
           ),
           FilledButton.tonalIcon(
-            onPressed: _exportPdf,
-            icon: const Icon(Icons.picture_as_pdf_outlined),
-            label: const Text('Pobierz kartę i pomiary do PDF'),
+            onPressed: _exporting ? null : () => _exportPdf(),
+            icon: const Icon(Icons.download_outlined),
+            label: const Text('Zapisz kartę i pomiary jako PDF'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _exporting ? null : () => _exportPdf(share: true),
+            icon: const Icon(Icons.share_outlined),
+            label: const Text('Udostępnij PDF'),
           ),
           const SectionCard(
             title: 'Zalecenia',

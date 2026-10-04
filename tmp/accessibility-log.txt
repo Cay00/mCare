@@ -1,0 +1,64 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: all screens remain scrollable without overflow: phone
+00:01 +1: all screens remain scrollable without overflow: large-text
+00:02 +2: all screens remain scrollable without overflow: landscape
+00:03 +3: all screens remain scrollable without overflow: tablet
+00:03 +4: large text navigation retains all five destinations and dose toggle
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.first (dart:core/iterable.dart:663:7)
+#1      _FirstFinderMixin.filter (package:flutter_test/src/finders.dart:1383:28)
+#3      Iterable.isEmpty (dart:core/iterable.dart:560:33)
+#4      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2471:52)
+#7      TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#8      WidgetController.dragUntilVisible (package:flutter_test/src/controller.dart:2469:27)
+#9      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2439:13)
+#12     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#13     WidgetController.scrollUntilVisible (package:flutter_test/src/controller.dart:2427:27)
+#14     main.<anonymous closure> (file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart:118:18)
+<asynchronous suspension>
+#15     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#16     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 6 frames from dart:async, dart:async-patch, and package:stack_trace)
+
+The test description was:
+  large text navigation retains all five destinations and dose toggle
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +4 -1: large text navigation retains all five destinations and dose toggle [E]
+  Test failed. See exception logs above.
+  The test description was: large text navigation retains all five destinations and dose toggle
+  
+00:04 +4 -1: form labels are exposed to assistive technology
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A SemanticsHandle was active at the end of the test.
+All SemanticsHandle instances must be disposed by calling dispose() on the SemanticsHandle.
+
+When the exception was thrown, this was the stack:
+#0      WidgetTester._verifySemanticsHandlesWereDisposed (package:flutter_test/src/widget_tester.dart:1074:7)
+#1      WidgetTester._endOfTestVerifications (package:flutter_test/src/widget_tester.dart:1063:5)
+#2      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1968:22)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  form labels are exposed to assistive technology
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +4 -2: form labels are exposed to assistive technology [E]
+  Test failed. See exception logs above.
+  The test description was: form labels are exposed to assistive technology
+  
+00:04 +4 -2: (tearDownAll)
+00:04 +4 -2: Some tests failed.
+
+Failing tests:
+  C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: form labels are exposed to assistive technology
+  C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: large text navigation retains all five destinations and dose toggle

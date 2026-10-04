@@ -1,0 +1,10 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart
+00:00 +0: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: patient/access identifiers are excluded; package count is not stock
+00:00 +1: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: separate blocks keep distinct D.S. and flag incomplete screenshot layout
+00:00 +2: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: multiline dosing is copied without interpreting fractions or timing
+00:00 +3: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: no headings means no guesses; missing dosing remains empty
+00:00 +4: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_parser_test.dart: equal daily times, midnight wrap and fractional interval rounding
+00:06 +5: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:08 +6: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: cancelled scan does not open or save a form
+00:08 +7: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: unknown package stays blank; rejects negative stock
+00:08 +8: All tests passed!

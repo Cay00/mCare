@@ -123,7 +123,10 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        builder: (ctx) => const _AddMedicationSheet(),
+        builder: (ctx) => const SafeArea(
+          top: false,
+          child: SingleChildScrollView(child: _AddMedicationSheet()),
+        ),
       );
       if (!mounted || scan == null || scan == _AddPath.dismissed) return;
       if (scan == _AddPath.pdf) {
@@ -196,7 +199,9 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                     key: ValueKey('dose-${dose.id}'),
                     tooltip: 'Cofnij potwierdzenie: ${dose.name}, ${dose.time}',
                     onPressed: () => _toggleDose(dose),
-                    style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                    ),
                     icon: const Icon(Icons.undo_rounded, size: 22),
                   ),
                 )
@@ -352,11 +357,7 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
         if (!wide) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              copy,
-              const SizedBox(height: 8),
-              pill,
-            ],
+            children: [copy, const SizedBox(height: 8), pill],
           );
         }
         return Row(
@@ -507,7 +508,10 @@ class _AddOption extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.titleSmall),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,

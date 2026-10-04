@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../services/dose_schedule.dart';
 import '../services/prescription_dosing.dart';
 import 'care_components.dart';
@@ -61,18 +60,32 @@ class _DoseScheduleEditorState extends State<DoseScheduleEditor> {
 
   Future<void> _pick(int index) async {
     final time = _times[index];
-    final selected = await showDialog<int>(
+    final initial = time < 0 ? 8 * 60 : time;
+    final selected = await showTimePicker(
       context: context,
-      builder: (_) => _DoseTimeDialog(
-        minutes: time < 0 ? 8 * 60 : time,
-        title: index == 0
-            ? 'Godzina pierwszej dawki'
-            : 'Godzina dawki ${index + 1}',
+      initialTime: TimeOfDay(hour: initial ~/ 60, minute: initial % 60),
+      initialEntryMode: TimePickerEntryMode.dialOnly,
+      orientation: Orientation.portrait,
+      helpText: index == 0
+          ? 'Godzina pierwszej dawki'
+          : 'Godzina dawki ${index + 1}',
+      cancelText: 'Anuluj',
+      confirmText: 'Ustaw',
+      builder: (context, child) => MediaQuery(
+        // The fixed clock face overlaps its labels at large system text scales.
+        // Limit scaling only inside this standard picker; the form stays scalable.
+        data: MediaQuery.of(context).copyWith(
+          alwaysUse24HourFormat: true,
+          textScaler: MediaQuery.textScalerOf(
+            context,
+          ).clamp(maxScaleFactor: 1.3),
+        ),
+        child: child!,
       ),
     );
     if (!mounted || selected == null) return;
     setState(() {
-      _times[index] = selected;
+      _times[index] = selected.hour * 60 + selected.minute;
       _emit();
     });
   }
@@ -103,7 +116,7 @@ class _DoseScheduleEditorState extends State<DoseScheduleEditor> {
         contentPadding: EdgeInsets.zero,
         title: const Text('Ustaw godziny dawek'),
         subtitle: const Text(
-          'Wpisz osobno każdą godzinę. Wyłącz dla leków przyjmowanych doraźnie lub według zmiennego schematu.',
+          'Wybierz osobno każdą godzinę. Wyłącz dla leków przyjmowanych doraźnie lub według zmiennego schematu.',
         ),
         value: _enabled,
         onChanged: (value) => setState(() {
@@ -191,84 +204,5 @@ class _DoseScheduleEditorState extends State<DoseScheduleEditor> {
         ],
       ],
     ],
-  );
-}
-
-/// A scrollable numeric picker remains usable with large text and a keyboard.
-class _DoseTimeDialog extends StatefulWidget {
-  const _DoseTimeDialog({required this.minutes, required this.title});
-  final int minutes;
-  final String title;
-  @override
-  State<_DoseTimeDialog> createState() => _DoseTimeDialogState();
-}
-
-class _DoseTimeDialogState extends State<_DoseTimeDialog> {
-  final _form = GlobalKey<FormState>();
-  late final _hour = TextEditingController(
-    text: (widget.minutes ~/ 60).toString().padLeft(2, '0'),
-  );
-  late final _minute = TextEditingController(
-    text: (widget.minutes % 60).toString().padLeft(2, '0'),
-  );
-  void _save() {
-    if (_form.currentState!.validate()) {
-      Navigator.of(
-        context,
-      ).pop(int.parse(_hour.text) * 60 + int.parse(_minute.text));
-    }
-  }
-
-  @override
-  void dispose() {
-    _hour.dispose();
-    _minute.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    scrollable: true,
-    title: Text(widget.title),
-    content: Form(
-      key: _form,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _field('Godzina (00–23)', 'dose-hour', _hour, 23),
-          _field('Minuta (00–59)', 'dose-minute', _minute, 59),
-        ],
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Anuluj'),
-      ),
-      FilledButton(onPressed: _save, child: const Text('Ustaw')),
-    ],
-  );
-  Widget _field(
-    String label,
-    String key,
-    TextEditingController controller,
-    int max,
-  ) => CareField(
-    label: label,
-    child: TextFormField(
-      key: ValueKey(key),
-      controller: controller,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(2),
-      ],
-      validator: (text) {
-        final value = int.tryParse(text ?? '');
-        return value == null || value < 0 || value > max
-            ? 'Wpisz liczbę od 0 do $max.'
-            : null;
-      },
-    ),
   );
 }

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ void main() {
   });
   for (final scale in [1.0, 2.0]) {
     testWidgets(
-      'import and time editor fit at text scale $scale, including keyboard',
+      'import and time editor fit at text scale $scale, using clock dial',
       (tester) async {
         tester.view.physicalSize = Size(scale == 1 ? 390 : 320, 844);
         tester.view.devicePixelRatio = 1;
@@ -102,11 +103,13 @@ void main() {
         if (font.isNotEmpty) {
           await screenshot(tester, key, 'prescription-clock-$scale');
         }
-        tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+        expect(find.byType(TimePickerDialog), findsOneWidget);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        await tester.enterText(find.byKey(const ValueKey('dose-hour')), '23');
-        await tester.enterText(find.byKey(const ValueKey('dose-minute')), '15');
+        await tapDial(tester, 11, inner: true);
+        await tester.pumpAndSettle();
+        await tapDial(tester, 3, inner: false);
+        await tester.pumpAndSettle();
         await tester.ensureVisible(find.text('Ustaw'));
         await tester.pumpAndSettle();
         await tester.tap(find.text('Ustaw'));
@@ -131,3 +134,20 @@ Future<void> screenshot(WidgetTester tester, GlobalKey key, String name) =>
       ).writeAsBytesSync(data!.buffer.asUint8List());
       image.dispose();
     });
+
+Future<void> tapDial(
+  WidgetTester tester,
+  int position, {
+  bool inner = false,
+}) async {
+  final dial = find.descendant(
+    of: find.byWidgetPredicate((w) => '${w.runtimeType}' == '_Dial'),
+    matching: find.byType(CustomPaint),
+  );
+  final center = tester.getCenter(dial);
+  final radius = tester.getSize(dial).shortestSide / 2 - 24 - (inner ? 28 : 0);
+  final angle = position * math.pi / 6;
+  await tester.tapAt(
+    center + Offset(math.sin(angle) * radius, -math.cos(angle) * radius),
+  );
+}

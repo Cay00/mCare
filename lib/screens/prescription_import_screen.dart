@@ -101,128 +101,136 @@ class _PrescriptionImportScreenState extends State<PrescriptionImportScreen> {
     ];
     return Scaffold(
       appBar: careAppBar(context, 'Import recepty'),
-      body: PrototypePage(
-        children: [
-          const CareHeading(
-            'Leki z pliku PDF',
-            subtitle:
-                'Wybierz receptę, sprawdź odczytane dane i ustaw godziny dawek.',
-          ),
-          const CareNotice(
-            'Odczyt odbywa się na urządzeniu. Przepisane opakowania nie są automatycznie dodawane do posiadanego zapasu.',
-          ),
-          Material(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-              side: const BorderSide(color: CareColors.line),
+      body: SafeArea(
+        top: false,
+        child: PrototypePage(
+          children: [
+            const CareHeading(
+              'Leki z pliku PDF',
+              subtitle:
+                  'Wybierz receptę, sprawdź odczytane dane i ustaw godziny dawek.',
             ),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              key: const Key('selectPrescriptionPdf'),
-              onTap: _busy ? null : _read,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
-                child: Column(
-                  children: [
-                    const CareIcon(Icons.description_outlined),
-                    const SizedBox(height: 12),
-                    Text(
-                      _result == null ? 'Wybierz plik PDF' : 'Wybierz inny PDF',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'lub wczytaj receptę ponownie',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: CareColors.muted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            const CareNotice(
+              'Odczyt odbywa się na urządzeniu. Przepisane opakowania nie są automatycznie dodawane do posiadanego zapasu.',
             ),
-          ),
-          if (_busy) ...[
-            const LinearProgressIndicator(),
-            Semantics(liveRegion: true, child: Text(_progress)),
-          ],
-          if (_error != null) CareNotice(_error!, error: true),
-          if (_result != null) ...[
-            OutlinedButton.icon(
-              onPressed: _openPdf,
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              label: const Text('Pokaż oryginał PDF'),
-            ),
-            if (_result!.usedOcr)
-              const CareNotice(
-                'PDF zawiera skan. Sprawdź dokładnie cyfry, ułamki, nazwę i dawkowanie po rozpoznaniu tekstu.',
+            Material(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: const BorderSide(color: CareColors.line),
               ),
-            for (final warning in _result!.warnings) CareNotice(warning),
-            if (_result!.items.isEmpty)
-              const CareNotice(
-                'Nie odczytano leków. Spróbuj pobrać oryginalny PDF z IKP albo dodaj lek ręcznie.',
-              ),
-            for (var i = 0; i < _result!.items.length; i++)
-              SectionCard(
-                title: 'Lek ${i + 1}',
-                icon: Icons.medication_outlined,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      (_reviewed[i]?.product ?? _result!.items[i].product)
-                          .displayName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Dawkowanie: ${(_reviewed[i]?.instruction ?? _result!.items[i].instruction).isEmpty ? 'do uzupełnienia' : (_reviewed[i]?.instruction ?? _result!.items[i].instruction)}',
-                    ),
-                    if (_reviewed[i]?.doseMinutes.isNotEmpty ?? false)
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                key: const Key('selectPrescriptionPdf'),
+                onTap: _busy ? null : _read,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 28,
+                    horizontal: 16,
+                  ),
+                  child: Column(
+                    children: [
+                      const CareIcon(Icons.description_outlined),
+                      const SizedBox(height: 12),
                       Text(
-                        'Godziny: ${_reviewed[i]!.doseMinutes.map(doseTimeLabel).join(', ')} • ${_reviewed[i]!.everyDays == 1 ? 'codziennie' : 'co ${_reviewed[i]!.everyDays} dni'}',
+                        _result == null
+                            ? 'Wybierz plik PDF'
+                            : 'Wybierz inny PDF',
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                    for (final warning in _result!.items[i].warnings)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: CareNotice(warning),
+                      const SizedBox(height: 4),
+                      Text(
+                        'lub wczytaj receptę ponownie',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: CareColors.muted,
+                        ),
                       ),
-                    const SizedBox(height: 16),
-                    OutlinedButton(
-                      key: ValueKey('review-prescription-$i'),
-                      onPressed: _busy ? null : () => _review(i),
-                      child: Text(
-                        _reviewed[i] == null
-                            ? 'Sprawdź i ustaw godziny'
-                            : 'Popraw dane',
-                      ),
-                    ),
-                    if (_reviewed[i] != null)
-                      CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Dodaj ten lek'),
-                        value: _included[i],
-                        onChanged: (value) =>
-                            setState(() => _included[i] = value ?? false),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            if (_result!.items.isNotEmpty)
-              FilledButton(
-                key: const Key('savePrescriptionImport'),
-                onPressed: ready.isEmpty || _busy || _committed
-                    ? null
-                    : () {
-                        if (_committed) return;
-                        setState(() => _committed = true);
-                        Navigator.of(context).pop(ready);
-                      },
-                child: Text('Dodaj sprawdzone leki (${ready.length})'),
+            ),
+            if (_busy) ...[
+              const LinearProgressIndicator(),
+              Semantics(liveRegion: true, child: Text(_progress)),
+            ],
+            if (_error != null) CareNotice(_error!, error: true),
+            if (_result != null) ...[
+              OutlinedButton.icon(
+                onPressed: _openPdf,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                label: const Text('Pokaż oryginał PDF'),
               ),
+              if (_result!.usedOcr)
+                const CareNotice(
+                  'PDF zawiera skan. Sprawdź dokładnie cyfry, ułamki, nazwę i dawkowanie po rozpoznaniu tekstu.',
+                ),
+              for (final warning in _result!.warnings) CareNotice(warning),
+              if (_result!.items.isEmpty)
+                const CareNotice(
+                  'Nie odczytano leków. Spróbuj pobrać oryginalny PDF z IKP albo dodaj lek ręcznie.',
+                ),
+              for (var i = 0; i < _result!.items.length; i++)
+                SectionCard(
+                  title: 'Lek ${i + 1}',
+                  icon: Icons.medication_outlined,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        (_reviewed[i]?.product ?? _result!.items[i].product)
+                            .displayName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Dawkowanie: ${(_reviewed[i]?.instruction ?? _result!.items[i].instruction).isEmpty ? 'do uzupełnienia' : (_reviewed[i]?.instruction ?? _result!.items[i].instruction)}',
+                      ),
+                      if (_reviewed[i]?.doseMinutes.isNotEmpty ?? false)
+                        Text(
+                          'Godziny: ${_reviewed[i]!.doseMinutes.map(doseTimeLabel).join(', ')} • ${_reviewed[i]!.everyDays == 1 ? 'codziennie' : 'co ${_reviewed[i]!.everyDays} dni'}',
+                        ),
+                      for (final warning in _result!.items[i].warnings)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: CareNotice(warning),
+                        ),
+                      const SizedBox(height: 16),
+                      OutlinedButton(
+                        key: ValueKey('review-prescription-$i'),
+                        onPressed: _busy ? null : () => _review(i),
+                        child: Text(
+                          _reviewed[i] == null
+                              ? 'Sprawdź i ustaw godziny'
+                              : 'Popraw dane',
+                        ),
+                      ),
+                      if (_reviewed[i] != null)
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Dodaj ten lek'),
+                          value: _included[i],
+                          onChanged: (value) =>
+                              setState(() => _included[i] = value ?? false),
+                        ),
+                    ],
+                  ),
+                ),
+              if (_result!.items.isNotEmpty)
+                FilledButton(
+                  key: const Key('savePrescriptionImport'),
+                  onPressed: ready.isEmpty || _busy || _committed
+                      ? null
+                      : () {
+                          if (_committed) return;
+                          setState(() => _committed = true);
+                          Navigator.of(context).pop(ready);
+                        },
+                  child: Text('Dodaj sprawdzone leki (${ready.length})'),
+                ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

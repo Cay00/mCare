@@ -1,0 +1,142 @@
+00:00 +0: loading C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart
+00:00 +0: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: EAN-13 and zero-padded GTIN-14 identify the same package
+00:00 +1: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: rejects bad checksum, truncated, overlong and non-numeric codes
+00:00 +2: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: GS1 AI 01 with expiry, lot, serial and symbology prefix
+00:00 +3: C:/Users/kacpe/Documents/GitHub/mCare/test/gtin_test.dart: does not search inside serial/lot or accept malformed AI 01
+00:00 +4: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +5: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +6: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +7: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +8: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:00 +9: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +10: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +11: C:/Users/kacpe/Documents/GitHub/mCare/test/medication_form_test.dart: existing scanner button fills form; saves user dosing and stock
+00:01 +12: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +13: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +14: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +15: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +16: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +16: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_pdf_test.dart: real PDF text extraction preserves separate prescriptions across pages
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+00:01 +17: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +18: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:01 +19: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +20: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +21: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +22: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +23: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +24: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +25: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +26: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +26: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_pdf_test.dart: page limit is enforced before extraction
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+00:02 +27: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +28: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +29: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +30: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +31: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:02 +32: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: PDF import requires review; selected first time creates daily doses, not stock
+00:03 +33: C:/Users/kacpe/Documents/GitHub/mCare/test/prescription_import_test.dart: cancel selection and unreadable document never enable import
+00:04 +34: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: (setUpAll)
+00:04 +34: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: phone
+00:06 +35: C:/Users/kacpe/Documents/GitHub/mCare/test/widget_test.dart: prototyp pokazuje pięć ekranów
+00:06 +36: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: large-text
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 121 pixels on the right.
+
+The relevant error-causing widget was:
+  Row Row:file:///C:/Users/kacpe/Documents/GitHub/mCare/lib/screens/login_screen.dart:156:38
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#e66dc relayoutBoundary=up25 OVERFLOWING:
+  creator: Row ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← Focus ← ⋯
+  parentData: offset=Offset(16.0, 12.0) (can use size)
+  constraints: BoxConstraints(w=240.0, 0.0<=h<=Infinity)
+  size: Size(240.0, 84.0)
+  direction: horizontal
+  mainAxisAlignment: start
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 257 pixels on the right.
+
+The relevant error-causing widget was:
+  Row Row:file:///C:/Users/kacpe/Documents/GitHub/mCare/lib/screens/login_screen.dart:156:38
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#a7dcf relayoutBoundary=up25 OVERFLOWING:
+  creator: Row ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← Focus ← ⋯
+  parentData: offset=Offset(16.0, 12.0) (can use size)
+  constraints: BoxConstraints(w=240.0, 0.0<=h<=Infinity)
+  size: Size(240.0, 84.0)
+  direction: horizontal
+  mainAxisAlignment: start
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: null
+  Actual: 'Multiple exceptions (2) were detected during the running of the current test, and at
+least one was unexpected.'
+large-text/login initial
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart:115:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart line 115
+The test description was:
+  all screens remain scrollable without overflow: large-text
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +36 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/widget_test.dart: opiekun dostaje dane dopiero po zgodzie chorego
+00:06 +36 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: large-text [E]
+  Test failed. See exception logs above.
+  The test description was: all screens remain scrollable without overflow: large-text
+  
+00:07 +37 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: landscape
+00:07 +38 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: tablet
+00:07 +39 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: large text navigation retains all five destinations and dose toggle
+00:08 +40 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: form labels are exposed to assistive technology
+00:08 +41 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: shell controls have usable touch targets and labels
+00:08 +42 -1: C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: (tearDownAll)
+00:08 +42 -1: Some tests failed.
+
+Failing tests:
+  C:/Users/kacpe/Documents/GitHub/mCare/test/ui_accessibility_test.dart: all screens remain scrollable without overflow: large-text

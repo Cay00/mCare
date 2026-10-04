@@ -149,187 +149,193 @@ class _MedicationFormState extends State<MedicationForm> {
   @override
   Widget build(BuildContext context) {
     final scanned = widget.product != null;
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _form,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                widget.prescriptionSource != null
-                    ? 'Sprawdź lek z recepty'
-                    : scanned
-                    ? 'Rozpoznano lek'
-                    : 'Dodaj nowy lek',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              if (widget.prescriptionSource != null) ...[
-                const CareNotice(
-                  'Porównaj nazwę i dawkowanie z PDF. Odczyt, zwłaszcza ze skanu, może zawierać błędy.',
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _form,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  widget.prescriptionSource != null
+                      ? 'Sprawdź lek z recepty'
+                      : scanned
+                      ? 'Rozpoznano lek'
+                      : 'Dodaj nowy lek',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 12),
-                ExpansionTile(
-                  title: const Text('Odczytany fragment recepty'),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SelectableText(widget.prescriptionSource!),
-                    ),
-                  ],
-                ),
-                if (widget.prescribedPackages != null)
-                  Text(
-                    'Przepisane opakowania: ${widget.prescribedPackages}. Posiadany zapas wpisz osobno.',
+                const SizedBox(height: 16),
+                if (widget.prescriptionSource != null) ...[
+                  const CareNotice(
+                    'Porównaj nazwę i dawkowanie z PDF. Odczyt, zwłaszcza ze skanu, może zawierać błędy.',
                   ),
-                const SizedBox(height: 20),
-              ],
-              _field(
-                'Nazwa leku',
-                _name,
-                readOnly: scanned,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Wpisz nazwę leku.' : null,
-              ),
-              _field('Moc', _strength, readOnly: scanned),
-              _field('Postać leku', _shape, readOnly: scanned),
-              _field('Opis opakowania', _description, readOnly: scanned),
-              if (widget.product?.gtin != null) ...[
-                Text('GTIN: ${widget.product!.gtin}'),
-                const SizedBox(height: 12),
-              ],
-              if (scanned && widget.product!.packageQuantity == null) ...[
-                const Text(
-                  'Rejestr nie podaje jednoznacznej liczby jednostek. '
-                  'Możesz uzupełnić ją z opakowania lub pozostawić pustą.',
-                ),
-                const SizedBox(height: 12),
-              ],
-              _field(
-                'Ilość w jednym opakowaniu',
-                _quantity,
-                readOnly: scanned && widget.product!.packageQuantity != null,
-                numeric: true,
-                validator: (value) {
-                  final error = _validateNumber(value, positive: true);
-                  if (error != null) return error;
-                  if ((value == null || value.trim().isEmpty) &&
-                      _unit.text.trim().isNotEmpty) {
-                    return 'Podaj ilość albo pozostaw ilość i jednostkę puste.';
-                  }
-                  return null;
-                },
-              ),
-              _field(
-                'Jednostka (np. tabletki, kapsułki, ml)',
-                _unit,
-                readOnly: scanned && widget.product!.packageUnit != null,
-                validator: (value) {
-                  if (_quantity.text.trim().isNotEmpty ||
-                      _looseUnits.text.trim().isNotEmpty) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Podaj jednostkę.';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const CareHeading('Dawkowanie i zapas'),
-              const SizedBox(height: 20),
-              _field(
-                'Dawkowanie według zaleceń lekarza',
-                _instruction,
-                maxLines: 2,
-                hint: 'Wpisz zalecenie — możesz uzupełnić później',
-              ),
-              FormField<List<int>>(
-                initialValue: _doseMinutes,
-                validator: (times) =>
-                    times != null && times.any((time) => time < 0)
-                    ? 'Ustaw osobno godzinę każdego przyjęcia leku.'
-                    : times != null && times.toSet().length != times.length
-                    ? 'Godziny dawek nie mogą się powtarzać.'
-                    : null,
-                builder: (state) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ValueListenableBuilder<TextEditingValue>(
-                      valueListenable: _instruction,
-                      builder: (context, value, child) => DoseScheduleEditor(
-                        recognizedDosing: recognizePrescriptionDosing(
-                          value.text,
-                        ),
-                        initialMinutes: _doseMinutes,
-                        initialEveryDays: _everyDays,
-                        initialStart: _scheduleStart,
-                        onPatternChanged: (days, start) {
-                          _everyDays = days;
-                          _scheduleStart = start;
-                        },
-                        onChanged: (times) {
-                          _doseMinutes = times;
-                          state.didChange(times);
-                        },
-                      ),
-                    ),
-                    if (state.hasError)
-                      CareNotice(state.errorText!, error: true),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              _field(
-                'Posiadane pełne opakowania',
-                _packages,
-                numeric: true,
-                validator: (v) => _validateNumber(v, integer: true),
-              ),
-              _field(
-                'Dodatkowe jednostki z otwartego opakowania',
-                _looseUnits,
-                numeric: true,
-                validator: (v) => _validateNumber(v),
-              ),
-              const Text(
-                'Zapas możesz uzupełnić później. Dodatkowe jednostki '
-                'wpisz w tej samej jednostce co ilość w opakowaniu.',
-              ),
-              const SizedBox(height: 16),
-              if (widget.prescriptionSource != null)
-                FormField<bool>(
-                  initialValue: false,
-                  validator: (value) => value == true
-                      ? null
-                      : 'Sprawdź dane leku i zaznacz potwierdzenie.',
-                  builder: (state) => Column(
+                  const SizedBox(height: 12),
+                  ExpansionTile(
+                    title: const Text('Odczytany fragment recepty'),
                     children: [
-                      CheckboxListTile(
-                        key: const Key('confirmPrescription'),
-                        value: state.value ?? false,
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text(
-                          'Sprawdziłem nazwę, dawkowanie i godziny z zaleceniem',
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SelectableText(widget.prescriptionSource!),
+                      ),
+                    ],
+                  ),
+                  if (widget.prescribedPackages != null)
+                    Text(
+                      'Przepisane opakowania: ${widget.prescribedPackages}. Posiadany zapas wpisz osobno.',
+                    ),
+                  const SizedBox(height: 20),
+                ],
+                _field(
+                  'Nazwa leku',
+                  _name,
+                  readOnly: scanned,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Wpisz nazwę leku.'
+                      : null,
+                ),
+                _field('Moc', _strength, readOnly: scanned),
+                _field('Postać leku', _shape, readOnly: scanned),
+                _field('Opis opakowania', _description, readOnly: scanned),
+                if (widget.product?.gtin != null) ...[
+                  Text('GTIN: ${widget.product!.gtin}'),
+                  const SizedBox(height: 12),
+                ],
+                if (scanned && widget.product!.packageQuantity == null) ...[
+                  const Text(
+                    'Rejestr nie podaje jednoznacznej liczby jednostek. '
+                    'Możesz uzupełnić ją z opakowania lub pozostawić pustą.',
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                _field(
+                  'Ilość w jednym opakowaniu',
+                  _quantity,
+                  readOnly: scanned && widget.product!.packageQuantity != null,
+                  numeric: true,
+                  validator: (value) {
+                    final error = _validateNumber(value, positive: true);
+                    if (error != null) return error;
+                    if ((value == null || value.trim().isEmpty) &&
+                        _unit.text.trim().isNotEmpty) {
+                      return 'Podaj ilość albo pozostaw ilość i jednostkę puste.';
+                    }
+                    return null;
+                  },
+                ),
+                _field(
+                  'Jednostka (np. tabletki, kapsułki, ml)',
+                  _unit,
+                  readOnly: scanned && widget.product!.packageUnit != null,
+                  validator: (value) {
+                    if (_quantity.text.trim().isNotEmpty ||
+                        _looseUnits.text.trim().isNotEmpty) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Podaj jednostkę.';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+                const CareHeading('Dawkowanie i zapas'),
+                const SizedBox(height: 20),
+                _field(
+                  'Dawkowanie według zaleceń lekarza',
+                  _instruction,
+                  maxLines: 2,
+                  hint: 'Wpisz zalecenie — możesz uzupełnić później',
+                ),
+                FormField<List<int>>(
+                  initialValue: _doseMinutes,
+                  validator: (times) =>
+                      times != null && times.any((time) => time < 0)
+                      ? 'Ustaw osobno godzinę każdego przyjęcia leku.'
+                      : times != null && times.toSet().length != times.length
+                      ? 'Godziny dawek nie mogą się powtarzać.'
+                      : null,
+                  builder: (state) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _instruction,
+                        builder: (context, value, child) => DoseScheduleEditor(
+                          recognizedDosing: recognizePrescriptionDosing(
+                            value.text,
+                          ),
+                          initialMinutes: _doseMinutes,
+                          initialEveryDays: _everyDays,
+                          initialStart: _scheduleStart,
+                          onPatternChanged: (days, start) {
+                            _everyDays = days;
+                            _scheduleStart = start;
+                          },
+                          onChanged: (times) {
+                            _doseMinutes = times;
+                            state.didChange(times);
+                          },
                         ),
-                        onChanged: state.didChange,
                       ),
                       if (state.hasError)
                         CareNotice(state.errorText!, error: true),
                     ],
                   ),
                 ),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                child: const Text('Zapisz lek'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Anuluj'),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _field(
+                  'Posiadane pełne opakowania',
+                  _packages,
+                  numeric: true,
+                  validator: (v) => _validateNumber(v, integer: true),
+                ),
+                _field(
+                  'Dodatkowe jednostki z otwartego opakowania',
+                  _looseUnits,
+                  numeric: true,
+                  validator: (v) => _validateNumber(v),
+                ),
+                const Text(
+                  'Zapas możesz uzupełnić później. Dodatkowe jednostki '
+                  'wpisz w tej samej jednostce co ilość w opakowaniu.',
+                ),
+                const SizedBox(height: 16),
+                if (widget.prescriptionSource != null)
+                  FormField<bool>(
+                    initialValue: false,
+                    validator: (value) => value == true
+                        ? null
+                        : 'Sprawdź dane leku i zaznacz potwierdzenie.',
+                    builder: (state) => Column(
+                      children: [
+                        CheckboxListTile(
+                          key: const Key('confirmPrescription'),
+                          value: state.value ?? false,
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text(
+                            'Sprawdziłem nazwę, dawkowanie i godziny z zaleceniem',
+                          ),
+                          onChanged: state.didChange,
+                        ),
+                        if (state.hasError)
+                          CareNotice(state.errorText!, error: true),
+                      ],
+                    ),
+                  ),
+                FilledButton(
+                  onPressed: _saving ? null : _save,
+                  child: const Text('Zapisz lek'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Anuluj'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
