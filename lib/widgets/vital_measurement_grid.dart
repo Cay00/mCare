@@ -21,7 +21,8 @@ class VitalMeasurementGrid extends StatelessWidget {
           tileKey: Key('vital-tile-${kind.name}'),
           label: kind.label,
           icon: _icon(kind),
-          value: _value(vitals.latest(kind)),
+          value: _value(vitals.latest(kind)) ?? VitalMeasurementGrid._preview(kind),
+          preview: vitals.latest(kind) == null,
           unit: kind.unit,
           when: vitals.latest(kind)?.at,
           onTap: () => onVital(kind),
@@ -76,6 +77,14 @@ class VitalMeasurementGrid extends StatelessWidget {
       decimal: reading.kind.usesDecimal,
     );
   }
+
+  static String _preview(VitalKind kind) => switch (kind) {
+    VitalKind.glucose => '120',
+    VitalKind.bloodPressure => '120/80',
+    VitalKind.weight => '68,5',
+    VitalKind.temperature => '36,6',
+    VitalKind.saturation => '98',
+  };
 }
 
 class _MeasurementTile extends StatelessWidget {
@@ -87,24 +96,25 @@ class _MeasurementTile extends StatelessWidget {
     required this.unit,
     required this.when,
     required this.onTap,
+    required this.preview,
   });
 
   final Key tileKey;
   final String label;
   final IconData icon;
-  final String? value;
+  final String value;
   final String unit;
   final DateTime? when;
   final VoidCallback onTap;
+  final bool preview;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final recorded = value != null;
-    final whenLabel = recorded ? _whenLabel(when!) : 'Zobacz wykres';
-    final spoken = recorded
-        ? '$label, $value $unit, $whenLabel'
-        : '$label, brak pomiaru. Zobacz wykres';
+    final whenLabel = preview ? 'przykład' : _whenLabel(when!);
+    final spoken = preview
+        ? '$label, przykład $value $unit'
+        : '$label, $value $unit, $whenLabel';
 
     return Semantics(
       button: true,
@@ -129,12 +139,19 @@ class _MeasurementTile extends StatelessWidget {
                     child: Icon(icon, color: CareColors.primary, size: 24),
                   ),
                   const SizedBox(height: 12),
-                  Text(label, style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 6),
                   Text(
-                    recorded ? value! : '—',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: recorded ? CareColors.ink : CareColors.muted,
+                    label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: CareColors.muted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: CareColors.primary,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
@@ -143,11 +160,12 @@ class _MeasurementTile extends StatelessWidget {
                       color: CareColors.muted,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Text(
                     whenLabel,
-                    style: theme.textTheme.labelMedium?.copyWith(
+                    style: theme.textTheme.labelSmall?.copyWith(
                       color: CareColors.primary,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

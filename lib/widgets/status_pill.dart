@@ -12,45 +12,23 @@ class StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (background, foreground) = switch (tone) {
-      StatusTone.done => (
-        theme.colorScheme.primaryContainer,
-        theme.colorScheme.onPrimaryContainer,
-      ),
-      StatusTone.ready => (const Color(0xFFFFF1E0), const Color(0xFF9A3412)),
-      StatusTone.neutral => (
-        theme.colorScheme.surfaceContainerHighest,
-        theme.colorScheme.onSurfaceVariant,
-      ),
+      StatusTone.done => (const Color(0xFFE7F6EE), const Color(0xFF128A48)),
+      StatusTone.ready => (const Color(0xFFFFF4E5), const Color(0xFFB45309)),
+      StatusTone.neutral => (const Color(0xFFF1F3F2), const Color(0xFF5C675F)),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ExcludeSemantics(
-            child: Icon(
-              switch (tone) {
-                StatusTone.done => Icons.check_circle_outline,
-                StatusTone.ready => Icons.schedule,
-                StatusTone.neutral => Icons.info_outline,
-              },
-              size: 20,
-              color: foreground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(color: foreground),
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: foreground,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

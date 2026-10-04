@@ -16,10 +16,43 @@ class HomeScreen extends StatelessWidget {
     vitalStore.load();
     return PrototypePage(
       children: [
-        CareHeading(
-          'Dzień dobry',
-          eyebrow: _polishToday(),
-          subtitle: 'Maria Kowalska',
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dzień dobry',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    'Maria Kowalska',
+                    style: theme.textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _polishToday(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: CareColors.muted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'Powiadomienia',
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Brak nowych powiadomień.')),
+                );
+              },
+              icon: const Icon(Icons.notifications_none_rounded),
+            ),
+          ],
         ),
         Card(
           color: CareColors.primary,
@@ -33,52 +66,54 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        CareIcon(Icons.medication_outlined, inverse: true),
-                        SizedBox(width: 14),
+                        const CareIcon(
+                          Icons.medication_outlined,
+                          inverse: true,
+                        ),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Text(
                             'Następny lek',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     Text(
                       'Prestarium 5 mg',
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 6),
                     Text(
                       'Dziś o 14:00 · 1 tabletka',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white,
+                        color: Colors.white.withValues(alpha: 0.88),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     const Divider(color: Color(0xFF729D93), height: 1),
-                    const SizedBox(height: 18),
-                    const Row(
+                    const SizedBox(height: 14),
+                    Row(
                       children: [
                         Expanded(
                           child: Text(
                             'Zobacz leki',
-                            style: TextStyle(
+                            style: theme.textTheme.labelLarge?.copyWith(
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                        Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                        const Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                        ),
                       ],
                     ),
                   ],
@@ -154,6 +189,5 @@ String _polishToday() {
   ];
   final now = DateTime.now();
   final weekday = weekdays[now.weekday - 1];
-  final capitalized = '${weekday[0].toUpperCase()}${weekday.substring(1)}';
-  return '$capitalized, ${now.day} ${months[now.month - 1]}';
+  return '$weekday, ${now.day} ${months[now.month - 1]}';
 }

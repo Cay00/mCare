@@ -31,10 +31,10 @@ class _AppShellState extends State<AppShell> {
     ),
     (
       label: 'Zdrowie',
-      icon: Icons.medical_information_outlined,
-      selected: Icons.medical_information,
+      icon: Icons.monitor_heart_outlined,
+      selected: Icons.monitor_heart,
     ),
-    (label: 'Porady', icon: Icons.spa_outlined, selected: Icons.spa),
+    (label: 'Porady', icon: Icons.favorite_border, selected: Icons.favorite),
     (label: 'Profil', icon: Icons.person_outline, selected: Icons.person),
   ];
 
@@ -65,8 +65,18 @@ class _AppShellState extends State<AppShell> {
       ),
       bottomNavigationBar: MediaQuery.textScalerOf(context).scale(14) > 20
           ? _largeTextNavigation(context)
-          : NavigationBar(
+          : DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: CareColors.line)),
+              ),
+              child: NavigationBar(
               selectedIndex: _index,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              shadowColor: Colors.transparent,
+              surfaceTintColor: Colors.white,
+              indicatorColor: CareColors.soft,
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               onDestinationSelected: _openTab,
               destinations: [
@@ -77,6 +87,7 @@ class _AppShellState extends State<AppShell> {
                     label: tab.label,
                   ),
               ],
+            ),
             ),
     );
   }

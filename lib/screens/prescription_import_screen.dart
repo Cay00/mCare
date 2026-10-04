@@ -4,6 +4,7 @@ import '../models/medication.dart';
 import '../models/prescription.dart';
 import '../services/prescription_pdf_service.dart';
 import '../services/dose_schedule.dart';
+import '../theme/app_theme.dart';
 import '../widgets/care_components.dart';
 import '../widgets/medication_form.dart';
 import '../widgets/prototype_page.dart';
@@ -99,7 +100,7 @@ class _PrescriptionImportScreenState extends State<PrescriptionImportScreen> {
         if (_included[i] && _reviewed[i] != null) _reviewed[i]!,
     ];
     return Scaffold(
-      appBar: careAppBar(context, 'Wczytaj receptę'),
+      appBar: careAppBar(context, 'Import recepty'),
       body: PrototypePage(
         children: [
           const CareHeading(
@@ -110,11 +111,37 @@ class _PrescriptionImportScreenState extends State<PrescriptionImportScreen> {
           const CareNotice(
             'Odczyt odbywa się na urządzeniu. Przepisane opakowania nie są automatycznie dodawane do posiadanego zapasu.',
           ),
-          OutlinedButton.icon(
-            key: const Key('selectPrescriptionPdf'),
-            onPressed: _busy ? null : _read,
-            icon: const Icon(Icons.upload_file),
-            label: Text(_result == null ? 'Wybierz PDF' : 'Wybierz inny PDF'),
+          Material(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+              side: const BorderSide(color: CareColors.line),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              key: const Key('selectPrescriptionPdf'),
+              onTap: _busy ? null : _read,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+                child: Column(
+                  children: [
+                    const CareIcon(Icons.description_outlined),
+                    const SizedBox(height: 12),
+                    Text(
+                      _result == null ? 'Wybierz plik PDF' : 'Wybierz inny PDF',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'lub wczytaj receptę ponownie',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: CareColors.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           if (_busy) ...[
             const LinearProgressIndicator(),

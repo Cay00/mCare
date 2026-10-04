@@ -8,6 +8,7 @@ class WellnessGuide {
     required this.icon,
     required this.intro,
     required this.steps,
+    this.category = 'Styl życia',
   });
 
   final String title;
@@ -15,12 +16,14 @@ class WellnessGuide {
   final IconData icon;
   final String intro;
   final List<String> steps;
+  final String category;
 }
 
 const wellnessGuides = <WellnessGuide>[
   WellnessGuide(
     title: 'Nawodnienie',
     duration: 'Na cały dzień',
+    category: 'Zdrowie',
     icon: Icons.water_drop_outlined,
     intro:
         'Picie małymi porcjami jest łagodniejsze niż jedna duża szklanka naraz. '
@@ -53,6 +56,7 @@ const wellnessGuides = <WellnessGuide>[
   WellnessGuide(
     title: 'Rozluźnienie mięśni',
     duration: 'Około 5 minut',
+    category: 'Zdrowie',
     icon: Icons.accessibility_new,
     intro:
         'Napięcie często siedzi w dłoniach, barkach i szczęce. '
@@ -103,6 +107,7 @@ const wellnessGuides = <WellnessGuide>[
   WellnessGuide(
     title: 'Delikatny ruch',
     duration: 'Około 5 minut',
+    category: 'Zdrowie',
     icon: Icons.directions_walk,
     intro:
         'Krótki ruch rozluźnia plecy i poprawia nastrój. '

@@ -20,7 +20,7 @@ class PrototypePage extends StatelessWidget {
       if (lead.isNotEmpty)
         Text(
           lead,
-          style: theme.textTheme.bodyLarge?.copyWith(
+          style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),

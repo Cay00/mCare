@@ -171,16 +171,13 @@ class _SharedFact extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.titleSmall),
         ],
       ),
     );

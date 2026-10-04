@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/services/vital_store.dart';
+import 'package:m_opiekun/theme/app_theme.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
@@ -16,8 +17,11 @@ class VitalDetailScreen extends StatefulWidget {
   State<VitalDetailScreen> createState() => _VitalDetailScreenState();
 }
 
+enum _ChartRange { day, week, month }
+
 class _VitalDetailScreenState extends State<VitalDetailScreen> {
   final _vitalStore = VitalStore.instance;
+  _ChartRange _range = _ChartRange.week;
 
   @override
   void initState() {
@@ -76,22 +80,47 @@ class _VitalDetailScreenState extends State<VitalDetailScreen> {
   Widget build(BuildContext context) {
     final kind = widget.kind;
     return Scaffold(
-      appBar: careAppBar(context, kind.label),
+      appBar: careAppBar(
+        context,
+        kind.label,
+        actions: [
+          IconButton(
+            tooltip: 'Dodaj pomiar',
+            onPressed: _addVital,
+            icon: const Icon(Icons.calendar_today_outlined),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: _vitalStore.revision,
         builder: (context, _) {
           final readings = _vitalStore.readingsOf(kind);
+          final latest = _vitalStore.latest(kind);
           return PrototypePage(
             children: [
-              CareHeading(
-                'Ostatnie 7 dni',
-                subtitle: 'Jeden słupek odpowiada jednemu dniu.',
+              _RangeSelector(
+                range: _range,
+                onChanged: (range) => setState(() => _range = range),
               ),
-              SectionCard(
-                title: kind.label,
-                icon: Icons.show_chart,
-                child: VitalWeekChart(kind: kind, readings: readings),
-              ),
+              _VitalHero(kind: kind, latest: latest),
+              if (_range == _ChartRange.week)
+                SectionCard(
+                  title: 'Ostatnie 7 dni',
+                  icon: Icons.show_chart,
+                  child: VitalWeekChart(kind: kind, readings: readings),
+                )
+              else if (_range == _ChartRange.day)
+                CareNotice(
+                  _vitalStore.hasMeasurementToday(kind)
+                      ? 'Dzisiejszy pomiar jest zapisany.'
+                      : 'Brak pomiaru na dziś. Zapisz wynik przyciskiem na dole.',
+                )
+              else
+                CareNotice(
+                  readings.isEmpty
+                      ? 'Brak zapisanych pomiarów w tym miesiącu.'
+                      : 'Zapisane wyniki: ${readings.length}.',
+                ),
               if (readings.isNotEmpty)
                 SectionCard(
                   title: 'Zapisane pomiary',
@@ -120,6 +149,101 @@ class _VitalDetailScreenState extends State<VitalDetailScreen> {
   }
 }
 
+class _RangeSelector extends StatelessWidget {
+  const _RangeSelector({required this.range, required this.onChanged});
+
+  final _ChartRange range;
+  final ValueChanged<_ChartRange> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final item in _ChartRange.values) ...[
+            if (item != _ChartRange.day) const SizedBox(width: 8),
+            ChoiceChip(
+              label: Text(switch (item) {
+                _ChartRange.day => 'Dzień',
+                _ChartRange.week => 'Tydzień',
+                _ChartRange.month => 'Miesiąc',
+              }),
+              selected: range == item,
+              showCheckmark: false,
+              onSelected: (_) => onChanged(item),
+              selectedColor: CareColors.primary,
+              backgroundColor: Colors.white,
+              labelStyle: TextStyle(
+                color: range == item ? Colors.white : CareColors.ink,
+                fontWeight: FontWeight.w600,
+              ),
+              side: BorderSide(
+                color: range == item ? CareColors.primary : CareColors.line,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _VitalHero extends StatelessWidget {
+  const _VitalHero({required this.kind, required this.latest});
+
+  final VitalKind kind;
+  final VitalReading? latest;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final value = latest == null
+        ? _preview(kind)
+        : kind == VitalKind.bloodPressure
+        ? '${latest!.primary.round()}/${latest!.secondary?.round() ?? 0}'
+        : formatVitalNumber(latest!.primary, decimal: kind.usesDecimal);
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.end,
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.headlineLarge?.copyWith(
+            color: CareColors.primary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        Text(
+          _reference(kind),
+          style: theme.textTheme.titleMedium?.copyWith(color: CareColors.ink),
+        ),
+      ],
+    );
+  }
+
+  static String _preview(VitalKind kind) => switch (kind) {
+    VitalKind.glucose => '118',
+    VitalKind.bloodPressure => '120/80',
+    VitalKind.weight => '68,5',
+    VitalKind.temperature => '36,6',
+    VitalKind.saturation => '98',
+  };
+
+  static String _reference(VitalKind kind) => switch (kind) {
+    VitalKind.glucose => '80 – 160',
+    VitalKind.bloodPressure => '90 – 140',
+    VitalKind.weight => 'kontrola',
+    VitalKind.temperature => '36,0 – 37,5',
+    VitalKind.saturation => '95 – 100',
+  };
+}
+
 class _ReadingLine extends StatelessWidget {
   const _ReadingLine({required this.reading, required this.isLast});
 
@@ -137,11 +261,17 @@ class _ReadingLine extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(stamp, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 4),
+          Text(
+            stamp,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 2),
           Text(
             formatVitalValue(reading),
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.titleSmall,
           ),
         ],
       ),

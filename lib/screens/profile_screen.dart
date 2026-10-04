@@ -8,6 +8,7 @@ import 'package:m_opiekun/screens/connect_patient_screen.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/screens/shared_patient_screen.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
+import 'package:m_opiekun/theme/app_theme.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 
@@ -30,36 +31,34 @@ class ProfileScreen extends StatelessWidget {
         return PrototypePage(
           listKey: const Key('profileScroll'),
           children: [
-            CareHeading(
-              'Twoje konto',
-              subtitle: isPatient
+            _ProfileHero(user: user),
+            Text(
+              isPatient
                   ? 'Ty wybierasz, komu i jakie dane udostępniasz.'
                   : 'Twoje dane i pacjenci, którzy udzielili Ci dostępu.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: CareColors.muted,
+              ),
             ),
             _AccountCard(user: user),
             if (isPatient) ..._pendingRequests(user),
             if (isPatient) ..._acceptedCaregivers(user),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonalIcon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ChangePasswordScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.lock_outline),
-                label: const Text('Zmień hasło'),
-              ),
+            _MenuButton(
+              icon: Icons.lock_outline,
+              label: 'Zmień hasło',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ChangePasswordScreen(),
+                  ),
+                );
+              },
             ),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: auth.logout,
-                icon: const Icon(Icons.logout),
-                label: const Text('Wyloguj się'),
-              ),
+            _MenuButton(
+              icon: Icons.logout,
+              label: 'Wyloguj się',
+              danger: true,
+              onTap: auth.logout,
             ),
             const _ZoneEntry(),
             if (isPatient) ...[
@@ -185,6 +184,83 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+class _ProfileHero extends StatelessWidget {
+  const _ProfileHero({required this.user});
+
+  final AppUser user;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Twoje konto', style: theme.textTheme.headlineMedium),
+        ),
+        const SizedBox(height: 16),
+        CircleAvatar(
+          radius: 42,
+          backgroundColor: CareColors.soft,
+          child: Text(
+            _initials(user.name),
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: CareColors.primary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(user.name, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: CareColors.soft,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            user.role.label,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: CareColors.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MenuButton extends StatelessWidget {
+  const _MenuButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.danger = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = danger ? const Color(0xFFDC2626) : CareColors.ink;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(
+          label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: color),
+        ),
+        trailing: Icon(Icons.chevron_right_rounded, color: color),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
 class _AccountCard extends StatelessWidget {
   const _AccountCard({required this.user});
 
@@ -198,13 +274,24 @@ class _AccountCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Fact(label: 'Imię i nazwisko', value: user.name),
           _Fact(label: 'Login', value: user.email),
           _Fact(label: 'Rola', value: user.role.label, isLast: true),
         ],
       ),
     );
   }
+}
+
+String _initials(String name) {
+  final parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
+  if (parts.isEmpty) return '?';
+  String letter(String word) => word[0].toUpperCase();
+  if (parts.length == 1) return letter(parts.first);
+  return '${letter(parts.first)}${letter(parts.last)}';
 }
 
 class _PatientCodeCard extends StatelessWidget {
@@ -568,16 +655,13 @@ class _Fact extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.titleSmall),
         ],
       ),
     );

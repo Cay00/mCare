@@ -7,6 +7,7 @@ import 'package:m_opiekun/services/health_pdf_export.dart';
 import 'package:m_opiekun/services/vital_store.dart';
 import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
+import 'package:m_opiekun/screens/measurement_history_screen.dart';
 import 'package:m_opiekun/screens/vital_detail_screen.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 import 'package:m_opiekun/widgets/vital_measurement_grid.dart';
@@ -41,21 +42,17 @@ class _HealthScreenState extends State<HealthScreen> {
   }
 
   Future<void> _editPatientData() async {
-    final data = await showModalBottomSheet<_PatientData>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => _PatientDataForm(
-        initial: _PatientData(
-          name: _name,
-          bloodType: _bloodType,
-          allergies: _allergies,
-          conditions: _conditions,
-          doctor: _doctor,
-          emergencyContact: _emergencyContact,
+    final data = await Navigator.of(context).push<_PatientData>(
+      MaterialPageRoute(
+        builder: (_) => _PatientDataPage(
+          initial: _PatientData(
+            name: _name,
+            bloodType: _bloodType,
+            allergies: _allergies,
+            conditions: _conditions,
+            doctor: _doctor,
+            emergencyContact: _emergencyContact,
+          ),
         ),
       ),
     );
@@ -115,61 +112,45 @@ class _HealthScreenState extends State<HealthScreen> {
             'Karta medyczna',
             subtitle: 'Najważniejsze informacje na wizytę i dla opiekuna.',
           ),
-          SectionCard(
-            title: 'Dane medyczne',
-            icon: Icons.medical_information_outlined,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _Fact(label: 'Osoba', value: _name),
-                _Fact(label: 'Grupa krwi', value: _bloodType),
-                _Fact(label: 'Alergie', value: _allergies),
-                _Fact(label: 'Choroby', value: _conditions),
-                _Fact(label: 'Lekarz prowadzący', value: _doctor),
-                _Fact(
-                  label: 'Kontakt alarmowy',
-                  value: _emergencyContact,
-                  isLast: true,
-                ),
-                const SizedBox(height: 20),
-                OutlinedButton.icon(
-                  onPressed: _editPatientData,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Edytuj dane pacjenta'),
-                ),
-              ],
-            ),
+          _MedicalCard(
+            name: _name,
+            bloodType: _bloodType,
+            allergies: _allergies,
+            conditions: _conditions,
+            doctor: _doctor,
+            emergencyContact: _emergencyContact,
+            onEdit: _editPatientData,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Pomiary', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                'Dotknij kafelek, aby zobaczyć wykres. Jeden pomiar danego rodzaju na dzień.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                'Najnowsze, aby zobaczyć wykres.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 16),
               VitalMeasurementGrid(vitals: _vitalStore, onVital: _openVital),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const MeasurementHistoryScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.history),
+                  label: const Text('Historia pomiarów'),
+                ),
+              ),
             ],
           ),
-          if (_vitalStore.readings.isNotEmpty)
-            SectionCard(
-              title: 'Historia pomiarów',
-              icon: Icons.history,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < _vitalStore.readings.length; i++)
-                    _VitalTile(
-                      reading: _vitalStore.readings[i],
-                      isLast: i == _vitalStore.readings.length - 1,
-                    ),
-                ],
-              ),
-            ),
           FilledButton.tonalIcon(
             onPressed: _exportPdf,
             icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -248,15 +229,15 @@ class _PatientData {
   final String emergencyContact;
 }
 
-class _PatientDataForm extends StatefulWidget {
-  const _PatientDataForm({required this.initial});
+class _PatientDataPage extends StatefulWidget {
+  const _PatientDataPage({required this.initial});
   final _PatientData initial;
 
   @override
-  State<_PatientDataForm> createState() => _PatientDataFormState();
+  State<_PatientDataPage> createState() => _PatientDataPageState();
 }
 
-class _PatientDataFormState extends State<_PatientDataForm> {
+class _PatientDataPageState extends State<_PatientDataPage> {
   final _formKey = GlobalKey<FormState>();
   late final _name = TextEditingController(text: widget.initial.name);
   late final _bloodType = TextEditingController(text: widget.initial.bloodType);
@@ -281,75 +262,109 @@ class _PatientDataFormState extends State<_PatientDataForm> {
   }
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Dane pacjenta',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            _field(_name, 'Imię i nazwisko'),
-            _field(_bloodType, 'Grupa krwi'),
-            _field(_allergies, 'Alergie'),
-            _field(_conditions, 'Choroby i schorzenia'),
-            _field(_doctor, 'Lekarz prowadzący'),
-            _field(_contact, 'Kontakt alarmowy'),
-            const SizedBox(height: 8),
-            FilledButton(
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) return;
-                Navigator.pop(
-                  context,
-                  _PatientData(
-                    name: _name.text.trim(),
-                    bloodType: _bloodType.text.trim(),
-                    allergies: _allergies.text.trim(),
-                    conditions: _conditions.text.trim(),
-                    doctor: _doctor.text.trim(),
-                    emergencyContact: _contact.text.trim(),
-                  ),
-                );
-              },
-              child: const Text('Zapisz dane'),
-            ),
-          ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: careAppBar(context, 'Edytuj dane pacjenta'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _field(_name, 'Imię i nazwisko'),
+              _field(_bloodType, 'Grupa krwi'),
+              _field(_allergies, 'Alergie'),
+              _field(_conditions, 'Choroby i schorzenia'),
+              _field(_doctor, 'Lekarz prowadzący'),
+              _field(_contact, 'Kontakt alarmowy'),
+              const SizedBox(height: 8),
+              FilledButton(
+                onPressed: () {
+                  if (!_formKey.currentState!.validate()) return;
+                  Navigator.pop(
+                    context,
+                    _PatientData(
+                      name: _name.text.trim(),
+                      bloodType: _bloodType.text.trim(),
+                      allergies: _allergies.text.trim(),
+                      conditions: _conditions.text.trim(),
+                      doctor: _doctor.text.trim(),
+                      emergencyContact: _contact.text.trim(),
+                    ),
+                  );
+                },
+                child: const Text('Zapisz dane'),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-class _VitalTile extends StatelessWidget {
-  const _VitalTile({required this.reading, required this.isLast});
+class _MedicalCard extends StatelessWidget {
+  const _MedicalCard({
+    required this.name,
+    required this.bloodType,
+    required this.allergies,
+    required this.conditions,
+    required this.doctor,
+    required this.emergencyContact,
+    required this.onEdit,
+  });
 
-  final VitalReading reading;
-  final bool isLast;
+  final String name;
+  final String bloodType;
+  final String allergies;
+  final String conditions;
+  final String doctor;
+  final String emergencyContact;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _formatDate(reading.at),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${reading.kind.label}: ${formatVitalValue(reading)}',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ],
+    final theme = Theme.of(context);
+    final edit = TextButton(
+      onPressed: onEdit,
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: Size.zero,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      ),
+      child: const Text('Edytuj dane pacjenta'),
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 12, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                Text('Dane medyczne', style: theme.textTheme.titleMedium),
+                edit,
+              ],
+            ),
+            const SizedBox(height: 8),
+            _Fact(label: 'Osoba', value: name),
+            _Fact(label: 'Grupa krwi', value: bloodType),
+            _Fact(label: 'Alergie', value: allergies),
+            _Fact(label: 'Choroby', value: conditions),
+            _Fact(label: 'Lekarz prowadzący', value: doctor),
+            _Fact(
+              label: 'Kontakt alarmowy',
+              value: emergencyContact,
+              isLast: true,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -390,16 +405,13 @@ class _Fact extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.titleSmall),
         ],
       ),
     );
@@ -438,23 +450,31 @@ class _VisitCard extends StatelessWidget {
           children: [
             Text(
               '$day $month · $time',
-              style: theme.textTheme.titleLarge?.copyWith(
+              style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 6),
-            Text(details, style: theme.textTheme.bodyLarge),
-            const Divider(),
+            const SizedBox(height: 2),
             Text(
-              reminder,
+              details,
               style: theme.textTheme.bodyMedium?.copyWith(color: mutedColor),
             ),
+            const SizedBox(height: 10),
+            Text(
+              reminder,
+              style: theme.textTheme.bodySmall?.copyWith(color: mutedColor),
+            ),
             if (muted)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text('Wizyta odbyta'),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Wizyta odbyta',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: mutedColor,
+                  ),
+                ),
               ),
           ],
         ),

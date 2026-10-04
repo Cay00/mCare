@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:m_opiekun/theme/app_theme.dart';
+
 class LiquidColors {
-  static const teal = Color(0xFF006B63);
-  static const tealDark = Color(0xFF004D47);
-  static const mint = Color(0xFFA0F0EA);
-  static const bg = Color(0xFFF5F2ED);
-  static const ink = Color(0xFF14201F);
-  static const muted = Color(0xFF5B6B69);
-  static const line = Color(0x47006B63);
+  static const teal = CareColors.primary;
+  static const tealDark = Color(0xFF128A48);
+  static const mint = CareColors.soft;
+  static const bg = Colors.white;
+  static const ink = CareColors.ink;
+  static const muted = CareColors.muted;
+  static const line = Color(0xFFD5DDD8);
 }
 
 class LiquidField extends StatefulWidget {
@@ -38,13 +40,6 @@ class LiquidField extends StatefulWidget {
 
 class _LiquidFieldState extends State<LiquidField> {
   final _focus = FocusNode();
-  bool _focused = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _focus.addListener(() => setState(() => _focused = _focus.hasFocus));
-  }
 
   @override
   void dispose() {
@@ -52,19 +47,7 @@ class _LiquidFieldState extends State<LiquidField> {
     super.dispose();
   }
 
-  BorderRadius get _radius => _focused
-      ? const BorderRadius.only(
-          topLeft: Radius.circular(6),
-          topRight: Radius.circular(22),
-          bottomRight: Radius.circular(6),
-          bottomLeft: Radius.circular(22),
-        )
-      : const BorderRadius.only(
-          topLeft: Radius.circular(22),
-          topRight: Radius.circular(6),
-          bottomRight: Radius.circular(22),
-          bottomLeft: Radius.circular(6),
-        );
+  static const _radius = BorderRadius.all(Radius.circular(14));
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +57,10 @@ class _LiquidFieldState extends State<LiquidField> {
         Text(
           widget.label,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: LiquidColors.ink,
+            letterSpacing: 0.2,
+            color: LiquidColors.muted,
           ),
         ),
         const SizedBox(height: 6),
@@ -95,7 +79,7 @@ class _LiquidFieldState extends State<LiquidField> {
           ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.7),
+            fillColor: Colors.white,
             hintText: widget.hintText,
             suffixIcon: widget.suffixIcon,
             border: OutlineInputBorder(borderRadius: _radius),
@@ -164,16 +148,9 @@ class LiquidButton extends StatelessWidget {
       style: FilledButton.styleFrom(
         backgroundColor: LiquidColors.teal,
         foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(58),
-        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(26),
-            topRight: Radius.circular(8),
-            bottomRight: Radius.circular(26),
-            bottomLeft: Radius.circular(8),
-          ),
-        ),
+        minimumSize: const Size.fromHeight(52),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       child: Text(label),
     );
@@ -187,38 +164,20 @@ class LiquidBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          top: -80,
-          left: -70,
-          child: _blob(280, LiquidColors.teal.withValues(alpha: 0.10)),
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            CareColors.headerMint,
+            Color(0xFFF4FBF7),
+            Colors.white,
+          ],
+          stops: [0, 0.28, 0.52],
         ),
-        Positioned(
-          top: 120,
-          right: -100,
-          child: _blob(220, const Color(0xFF0A8F85).withValues(alpha: 0.10)),
-        ),
-        Positioned(
-          bottom: -100,
-          left: -50,
-          child: _blob(260, const Color(0xFF0A8F85).withValues(alpha: 0.08)),
-        ),
-        Positioned(
-          bottom: 60,
-          right: -60,
-          child: _blob(180, LiquidColors.mint.withValues(alpha: 0.25)),
-        ),
-        child,
-      ],
-    );
-  }
-
-  Widget _blob(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      ),
+      child: child,
     );
   }
 }
@@ -340,9 +299,10 @@ class LiquidSelectField<T> extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: LiquidColors.ink,
+            letterSpacing: 0.2,
+            color: LiquidColors.muted,
           ),
         ),
         const SizedBox(height: 6),

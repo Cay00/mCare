@@ -17,7 +17,7 @@ AppBar careAppBar(BuildContext context, String title, {List<Widget>? actions}) {
                     (actions?.length ?? 0) * 56)
                 .clamp(80, 1000),
       );
-  final height = (painter.height + 24).clamp(76.0, double.infinity);
+  final height = (painter.height + 24).clamp(56.0, double.infinity);
   painter.dispose();
   return AppBar(title: Text(title), toolbarHeight: height, actions: actions);
 }
@@ -37,16 +37,16 @@ class CareIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: Container(
-      padding: const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: inverse
-            ? Colors.white.withValues(alpha: 0.14)
+            ? Colors.white.withValues(alpha: 0.16)
             : background ?? CareColors.soft,
-        borderRadius: BorderRadius.circular(18),
+        shape: BoxShape.circle,
       ),
       child: Icon(
         icon,
-        size: 26,
+        size: 22,
         color: inverse ? Colors.white : foreground ?? CareColors.primary,
       ),
     ),
@@ -69,19 +69,22 @@ class CareHeading extends StatelessWidget {
             eyebrow!,
             style: theme.textTheme.labelMedium?.copyWith(
               color: CareColors.primary,
+              letterSpacing: 0.4,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
         ],
         Semantics(
           header: true,
           child: Text(title, style: theme.textTheme.headlineMedium),
         ),
         if (subtitle != null) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             subtitle!,
-            style: theme.textTheme.bodyLarge?.copyWith(color: CareColors.muted),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: CareColors.muted,
+            ),
           ),
         ],
       ],
@@ -126,7 +129,7 @@ class CareNotice extends StatelessWidget {
                 text,
                 style: Theme.of(
                   context,
-                ).textTheme.bodyMedium?.copyWith(color: foreground),
+                ).textTheme.bodyLarge?.copyWith(color: foreground),
               ),
             ),
           ],
@@ -148,7 +151,13 @@ class CareField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ExcludeSemantics(
-          child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: CareColors.muted,
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         Semantics(label: label, child: child),
@@ -183,28 +192,25 @@ class CareLinkCard extends StatelessWidget {
         if (kicker != null) ...[
           Text(
             kicker!,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: CareColors.muted),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: CareColors.muted,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
         ],
         Text(title, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           subtitle,
           style: Theme.of(
             context,
-          ).textTheme.bodyLarge?.copyWith(color: CareColors.muted),
+          ).textTheme.bodyMedium?.copyWith(color: CareColors.muted),
         ),
       ],
     );
     const arrow = ExcludeSemantics(
-      child: Icon(
-        Icons.arrow_forward_rounded,
-        size: 22,
-        color: CareColors.primary,
-      ),
+      child: Icon(Icons.chevron_right_rounded, size: 22, color: CareColors.muted),
     );
     return Card(
       clipBehavior: Clip.antiAlias,

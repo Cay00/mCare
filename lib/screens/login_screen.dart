@@ -1,8 +1,8 @@
-import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/screens/register_screen.dart';
+import 'package:m_opiekun/theme/app_theme.dart';
 import 'package:m_opiekun/widgets/liquid.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,60 +37,32 @@ class _LoginScreenState extends State<LoginScreen> {
     final demoUsers = widget.auth.demoUsers;
 
     return Scaffold(
-      backgroundColor: LiquidColors.bg,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: LiquidBackground(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
+                constraints: const BoxConstraints(maxWidth: 420),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 30,
-                      ),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xEB006B63),
-                            Color(0xEB004D47),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(44),
-                          topRight: Radius.circular(44),
-                          bottomRight: Radius.circular(14),
-                          bottomLeft: Radius.circular(44),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'mOpiekun',
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Zaloguj się, aby kontynuować',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                          ),
-                        ],
+                    Text(
+                      'mOpiekun',
+                      style: theme.textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.8,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Zaloguj się, aby kontynuować',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: CareColors.muted,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
                     LiquidField(
                       controller: _email,
                       label: 'E-mail',
@@ -102,12 +74,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Hasło',
                       obscureText: true,
                     ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Odzyskiwanie hasła nie jest jeszcze podłączone.',
+                              ),
+                            ),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(48, 40),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
+                        child: const Text(
+                          'Nie pamiętasz hasła?',
+                          style: TextStyle(
+                            color: CareColors.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
                     if (_error != null) ...[
-                      const SizedBox(height: 12),
                       LiquidError(message: _error!),
+                      const SizedBox(height: 12),
                     ],
-                    const SizedBox(height: 16),
                     LiquidButton(label: 'Zaloguj się', onPressed: _submit),
+                    const SizedBox(height: 8),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -116,80 +114,91 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'Nie masz konta? Zarejestruj się',
-                        style: TextStyle(
-                          color: LiquidColors.teal,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
+                      child: const Text.rich(
+                        TextSpan(
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: CareColors.muted,
+                          ),
+                          children: [
+                            TextSpan(text: 'Nie masz konta? '),
+                            TextSpan(
+                              text: 'Zarejestruj się',
+                              style: TextStyle(
+                                color: CareColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text('Szybkie logowanie', style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Szybkie logowanie',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: CareColors.muted,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     for (final user in demoUsers)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Material(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(8),
-                            bottomRight: Radius.circular(24),
-                            bottomLeft: Radius.circular(8),
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: CareColors.line),
                           ),
+                          clipBehavior: Clip.antiAlias,
                           child: InkWell(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(24),
-                              topRight: Radius.circular(8),
-                              bottomRight: Radius.circular(24),
-                              bottomLeft: Radius.circular(8),
-                            ),
                             onTap: () =>
                                 widget.auth.login(user.email, user.password),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                                horizontal: 14,
                                 vertical: 12,
                               ),
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: LiquidColors.mint,
-                                    child: Icon(
-                                      user.role == UserRole.patient
-                                          ? Icons.person_outline
-                                          : Icons.favorite_outline,
-                                      color: const Color(0xFF003B36),
+                                    radius: 22,
+                                    backgroundColor: CareColors.soft,
+                                    child: Text(
+                                      _initials(user.name),
+                                      style: const TextStyle(
+                                        color: CareColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 14),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        user.name,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: LiquidColors.ink,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          user.name,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: CareColors.ink,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        roleLabel(user.role),
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: LiquidColors.muted,
+                                        Text(
+                                          roleLabel(user.role),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: CareColors.muted,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                  const Spacer(),
                                   const Icon(
-                                    Icons.chevron_right,
-                                    color: LiquidColors.muted,
+                                    Icons.chevron_right_rounded,
+                                    color: CareColors.muted,
                                   ),
                                 ],
                               ),
@@ -206,4 +215,16 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+String _initials(String name) {
+  final parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
+  if (parts.isEmpty) return '?';
+  String letter(String word) => word[0].toUpperCase();
+  if (parts.length == 1) return letter(parts.first);
+  return '${letter(parts.first)}${letter(parts.last)}';
 }

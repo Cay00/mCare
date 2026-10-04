@@ -59,7 +59,7 @@ class SafeZoneScreen extends StatelessWidget {
                       ),
                       Text(
                         'Ostatnio: dziś, 11:05',
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onPrimaryContainer,
                         ),
                       ),
@@ -146,14 +146,14 @@ class SafeZoneScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Maria opuściła bezpieczną strefę (ul. Lipowa 12).',
-                  style: theme.textTheme.bodyLarge?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     color: theme.colorScheme.onErrorContainer,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Taki komunikat ma dostać opiekun. Wysyłka nie jest podłączona.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onErrorContainer,
                   ),
                 ),
@@ -193,16 +193,13 @@ class _ZoneFact extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.titleSmall),
         ],
       ),
     );

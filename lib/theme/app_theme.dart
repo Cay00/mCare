@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 abstract final class CareColors {
-  static const canvas = Color(0xFFF4F7F4);
-  static const ink = Color(0xFF172F2A);
-  static const muted = Color(0xFF496059);
-  static const primary = Color(0xFF0A6257);
-  static const soft = Color(0xFFE4F1EB);
-  static const line = Color(0xFFD3E0D9);
-  static const warning = Color(0xFF82430D);
-  static const warningSurface = Color(0xFFFFF2DE);
+  static const canvas = Color(0xFFF7F8F7);
+  static const ink = Color(0xFF1A1D1C);
+  static const muted = Color(0xFF6B756F);
+  static const primary = Color(0xFF1AA35A);
+  static const soft = Color(0xFFE7F6EE);
+  static const line = Color(0xFFE4E8E5);
+  static const warning = Color(0xFFB45309);
+  static const warningSurface = Color(0xFFFFF4E5);
+  static const headerMint = Color(0xFFD7F5E4);
 }
 
 /// Shared visual tokens. Text scaling is deliberately left to the OS.
@@ -18,11 +19,11 @@ ThemeData buildAppTheme() {
     primary: CareColors.primary,
     onPrimary: Colors.white,
     primaryContainer: CareColors.soft,
-    onPrimaryContainer: const Color(0xFF164D40),
+    onPrimaryContainer: const Color(0xFF0E6B38),
     surface: Colors.white,
     onSurface: CareColors.ink,
     onSurfaceVariant: CareColors.muted,
-    outline: const Color(0xFF718B80),
+    outline: const Color(0xFF8AA099),
     outlineVariant: CareColors.line,
     surfaceContainerHighest: const Color(0xFFEBF0EC),
     error: const Color(0xFFAC2929),
@@ -33,55 +34,69 @@ ThemeData buildAppTheme() {
     headlineLarge: TextStyle(
       fontSize: 32,
       fontWeight: FontWeight.w700,
-      height: 1.15,
-      letterSpacing: -0.8,
+      height: 1.12,
+      letterSpacing: -0.6,
     ),
     headlineMedium: TextStyle(
-      fontSize: 28,
+      fontSize: 26,
       fontWeight: FontWeight.w700,
-      height: 1.2,
-      letterSpacing: -0.5,
+      height: 1.15,
+      letterSpacing: -0.4,
     ),
     titleLarge: TextStyle(
-      fontSize: 24,
+      fontSize: 22,
       fontWeight: FontWeight.w700,
-      height: 1.25,
-      letterSpacing: -0.3,
+      height: 1.2,
+      letterSpacing: -0.2,
     ),
     titleMedium: TextStyle(
-      fontSize: 20,
-      fontWeight: FontWeight.w700,
-      height: 1.3,
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+      height: 1.25,
     ),
     titleSmall: TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.w700,
-      height: 1.3,
-    ),
-    bodyLarge: TextStyle(fontSize: 18, height: 1.45),
-    bodyMedium: TextStyle(fontSize: 18, height: 1.4),
-    bodySmall: TextStyle(fontSize: 15, height: 1.4),
-    labelLarge: TextStyle(
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w600,
       height: 1.3,
+    ),
+    bodyLarge: TextStyle(
+      fontSize: 16,
+      height: 1.45,
+      fontWeight: FontWeight.w400,
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 15,
+      height: 1.4,
+      fontWeight: FontWeight.w400,
+    ),
+    bodySmall: TextStyle(
+      fontSize: 14,
+      height: 1.4,
+      fontWeight: FontWeight.w400,
+    ),
+    labelLarge: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      height: 1.2,
     ),
     labelMedium: TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w600,
-      height: 1.3,
-    ),
-    labelSmall: TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w600,
       height: 1.3,
+      letterSpacing: 0.2,
+    ),
+    labelSmall: TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      height: 1.25,
+      letterSpacing: 0.2,
     ),
   ).apply(fontFamily: 'Roboto');
-  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(18));
+  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
   final button = ButtonStyle(
-    minimumSize: const WidgetStatePropertyAll(Size(64, 58)),
+    minimumSize: const WidgetStatePropertyAll(Size(64, 52)),
     padding: const WidgetStatePropertyAll(
-      EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      EdgeInsets.symmetric(horizontal: 18, vertical: 14),
     ),
     shape: WidgetStatePropertyAll(shape),
     textStyle: WidgetStatePropertyAll(text.labelLarge),
@@ -104,7 +119,8 @@ ThemeData buildAppTheme() {
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleSpacing: 20,
-      toolbarHeight: 76,
+      toolbarHeight: 64,
+      surfaceTintColor: Colors.white,
       titleTextStyle: text.titleLarge?.copyWith(color: CareColors.ink),
     ),
     cardTheme: CardThemeData(
@@ -112,7 +128,7 @@ ThemeData buildAppTheme() {
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: CareColors.line),
       ),
     ),
@@ -138,14 +154,24 @@ ThemeData buildAppTheme() {
         foregroundColor: CareColors.primary,
       ),
     ),
+    listTileTheme: ListTileThemeData(
+      titleTextStyle: text.titleSmall?.copyWith(color: CareColors.ink),
+      subtitleTextStyle: text.bodyMedium?.copyWith(color: CareColors.muted),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      labelStyle: text.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: CareColors.muted,
+      ),
+      floatingLabelStyle: text.labelMedium?.copyWith(color: CareColors.primary),
+      hintStyle: text.bodyMedium?.copyWith(color: CareColors.muted),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF718B80)),
+        borderSide: const BorderSide(color: Color(0xFFD5DDD8)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -169,9 +195,18 @@ ThemeData buildAppTheme() {
     ),
     dividerTheme: const DividerThemeData(color: CareColors.line, space: 32),
     navigationBarTheme: NavigationBarThemeData(
-      height: 88,
+      height: 72,
       backgroundColor: Colors.white,
+      elevation: 0,
       indicatorColor: CareColors.soft,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (states) => IconThemeData(
+          size: 24,
+          color: states.contains(WidgetState.selected)
+              ? CareColors.primary
+              : CareColors.muted,
+        ),
+      ),
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           fontSize: 14,
