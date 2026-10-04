@@ -3,6 +3,9 @@ import 'package:m_opiekun/widgets/care_components.dart';
 import 'package:flutter/material.dart';
 
 import 'package:m_opiekun/auth/auth_service.dart';
+import 'package:m_opiekun/screens/safe_zone_screen.dart';
+import 'package:m_opiekun/services/safe_zone.dart';
+import 'package:m_opiekun/services/safe_zone_store.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
 import 'package:m_opiekun/widgets/section_card.dart';
 
@@ -122,25 +125,70 @@ class SharedPatientScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                 ],
                 if (link.scopes.contains(ShareScope.zone))
-                  const SectionCard(
-                    title: 'Strefa',
-                    icon: Icons.location_on_outlined,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _SharedFact(
-                          label: 'Status',
-                          value: 'W bezpiecznej strefie',
-                        ),
-                        _SharedFact(
-                          label: 'Miejsce',
-                          value: 'Dom, ul. Lipowa 12 · promień 200 m',
-                          isLast: true,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _SharedZoneCard(patientId: patientId, patientName: name),
               ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SharedZoneCard extends StatelessWidget {
+  const _SharedZoneCard({required this.patientId, required this.patientName});
+
+  final String patientId;
+  final String patientName;
+
+  @override
+  Widget build(BuildContext context) {
+    final store = SafeZoneStore.instance;
+    store.load();
+    return AnimatedBuilder(
+      animation: store,
+      builder: (context, _) {
+        final zone = store.zoneFor(patientId);
+        final presence = store.presenceFor(patientId);
+        final status = switch (presence) {
+          ZonePresence.inside => 'W bezpiecznej strefie',
+          ZonePresence.outside => 'Poza bezpieczną strefą',
+          ZonePresence.unknown =>
+            zone == null ? 'Strefa nieustawiona' : 'Czekam na lokalizację',
+        };
+        final place = zone == null
+            ? 'Pacjent nie wyznaczył jeszcze miejsca.'
+            : '${zone.label} · promień ${zone.radiusMeters} m';
+        final latest = store.alertsForPatient(patientId);
+        return SectionCard(
+          title: 'Strefa',
+          icon: Icons.location_on_outlined,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _SharedFact(label: 'Status', value: status),
+              _SharedFact(
+                label: 'Miejsce',
+                value: place,
+                isLast: latest.isEmpty,
+              ),
+              if (latest.isNotEmpty)
+                _SharedFact(
+                  label: 'Ostatni alert',
+                  value: latest.first.message,
+                  isLast: true,
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => openSafeZone(
+                    context,
+                    patientId: patientId,
+                    patientName: patientName,
+                  ),
+                  child: const Text('Pokaż na mapie'),
+                ),
+              ),
             ],
           ),
         );

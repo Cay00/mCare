@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Aparat służy do skanowania kodu kreskowego opakowania leku.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lokalizacja służy do sprawdzania, czy pacjent jest w bezpiecznej strefie. Gdy wyjdzie poza zapisany promień, opiekun dostaje powiadomienie.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

@@ -4,10 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:m_opiekun/app_shell.dart';
 import 'package:m_opiekun/auth/auth_service.dart';
 import 'package:m_opiekun/screens/login_screen.dart';
+import 'package:m_opiekun/services/zone_notifications.dart';
 import 'package:m_opiekun/sharing/sharing_service.dart';
 import 'package:m_opiekun/theme/app_theme.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await prepareZoneNotifications();
   final auth = AuthService();
   final sharing = SharingService();
   runApp(OpiekunApp(auth: auth, sharing: sharing));

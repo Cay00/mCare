@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:m_opiekun/services/safe_zone_store.dart';
 import 'package:m_opiekun/services/vital_store.dart';
 import 'package:m_opiekun/screens/safe_zone_screen.dart';
 import 'package:m_opiekun/widgets/prototype_page.dart';
@@ -13,7 +14,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final vitalStore = VitalStore.instance;
+    final zoneStore = SafeZoneStore.instance;
     vitalStore.load();
+    zoneStore.load();
     return PrototypePage(
       children: [
         Row(
@@ -29,10 +32,7 @@ class HomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    'Maria Kowalska',
-                    style: theme.textTheme.headlineMedium,
-                  ),
+                  Text('Maria Kowalska', style: theme.textTheme.headlineMedium),
                   const SizedBox(height: 2),
                   Text(
                     _polishToday(),
@@ -43,14 +43,24 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              tooltip: 'Powiadomienia',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Brak nowych powiadomień.')),
+            ListenableBuilder(
+              listenable: zoneStore,
+              builder: (context, _) {
+                final unread = zoneStore.unreadCount;
+                return IconButton(
+                  tooltip: 'Powiadomienia',
+                  onPressed: () => showZoneNotifications(context),
+                  icon: Badge(
+                    isLabelVisible: unread > 0,
+                    label: Text(unread > 9 ? '9+' : '$unread'),
+                    child: Icon(
+                      unread > 0
+                          ? Icons.notifications_rounded
+                          : Icons.notifications_none_rounded,
+                    ),
+                  ),
                 );
               },
-              icon: const Icon(Icons.notifications_none_rounded),
             ),
           ],
         ),
@@ -133,12 +143,23 @@ class HomeScreen extends StatelessWidget {
           subtitle: 'dr Anna Nowak · kardiolog',
           onTap: () => onOpenTab(2),
         ),
-        CareLinkCard(
-          icon: Icons.location_on_outlined,
-          kicker: 'Bezpieczna strefa',
-          title: 'W domu',
-          subtitle: 'ul. Lipowa 12 · promień 200 m',
-          onTap: () => openSafeZone(context),
+        ListenableBuilder(
+          listenable: zoneStore,
+          builder: (context, _) {
+            final status = zoneStore.homeStatus();
+            return CareLinkCard(
+              icon: status.outside
+                  ? Icons.location_off_outlined
+                  : Icons.location_on_outlined,
+              iconForeground: status.outside
+                  ? Theme.of(context).colorScheme.error
+                  : null,
+              kicker: 'Bezpieczna strefa',
+              title: status.title,
+              subtitle: status.subtitle,
+              onTap: () => openSafeZone(context),
+            );
+          },
         ),
         AnimatedBuilder(
           animation: vitalStore.revision,
