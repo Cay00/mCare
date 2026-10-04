@@ -37,6 +37,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+}
+
+dependencies {
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 }
 
 flutter {
